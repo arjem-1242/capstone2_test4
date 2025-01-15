@@ -1,0 +1,53 @@
+{% extends 'employer/layouts/base.html' %} {%  block content %}
+
+    <main id="main" class="main">
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const companyTypeField = document.getElementById('id_company_type');
+                const fileFields = {
+                    'Direct Company': ['sec_registration', 'dti_permit', 'business_permit', 'latest_job_posting', 'no_pending_case_certificate'],
+                    'Manpower Agencies/Cooperative': ['sec_registration', 'dti_permit', 'business_permit', 'sss_membership_registration', 'latest_payment_receipt', 'dole_permit', 'bir_registration', 'tied_companies_list', 'phil_job_net_registration', 'latest_job_posting', 'no_pending_case_certificate'],
+                    'For Overseas Manpower Agency': ['poea_permit', 'dti_permit', 'business_permit', 'dole_permit', 'no_pending_case_certificate', 'latest_job_order_with_qualifications'],
+                };
+
+                function updateFileFields() {
+                    const companyType = companyTypeField.value;
+                    Object.keys(fileFields).forEach(type => {
+                        fileFields[type].forEach(field => {
+                            const fieldElement = document.getElementById(`id_${field}`);
+                            if (fieldElement) {
+                                const display = fileFields[companyType]?.includes(field) ? 'block' : 'none';
+                                fieldElement.closest('p').style.display = display;
+                            }
+                        });
+                    });
+                }
+
+                companyTypeField.addEventListener('change', updateFileFields);
+                updateFileFields();  // Initial update based on pre-selected value
+            });
+        </script>
+        <script>
+            function goBack() {
+                window.location.href = "{% url 'employer:employer_dashboard' %}";
+            }
+        </script>
+
+    <body>
+        <div class="container">
+            <h1>Create Accreditation Request</h1>
+
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                {{ form.as_p }}
+
+                <button type="submit" class="btn btn-primary">Apply</button>
+                <button type="button" class="btn btn-secondary" onclick="goBack()">Back</button>
+            </form>
+        </div>
+    </body>
+
+    </main>
+
+
+{% endblock %}

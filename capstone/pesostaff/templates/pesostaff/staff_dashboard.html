@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PESO Staff Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            width: 80%;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px 0;
+            text-align: center;
+        }
+        nav ul {
+            list-style: none;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+        }
+        nav ul li {
+            margin: 0 15px;
+        }
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .content {
+            background-color: white;
+            padding: 20px;
+            margin-top: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .card {
+            background-color: #e7e7e7;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+        }
+        .card h3 {
+            margin-top: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>PESO Staff Dashboard</h1>
+            <nav>
+                <ul>
+                    <li><a href="{% url 'pesostaff:staff_dashboard' %}">Home</a></li>
+                    <li><a href="{% url 'pesostaff:requests_view' %}">Accreditation Requests</a></li>
+                    <li><a href="{% url 'pesostaff:view_job_postings' %}">View Job Postings</a></li>
+                </ul>
+            </nav>
+        </header>
+
+        <div class="content">
+            <h2>Welcome, PESO Staff Member</h2>
+            <p>Here you can manage accreditation requests, view job postings, and handle other administrative tasks.</p>
+
+            <div class="card">
+              <h3>Pending Accreditation Requests</h3>
+              <p>Total Requests: {{ pending_requests_count }}</p>
+              <a href="{% url 'pesostaff:requests_view' %}">View Requests</a>
+            </div>
+
+            <div class="card">
+               <h3>Recent Job Postings</h3>
+                <p>Total Job Postings: {{ all_job_postings_count }}</p>
+               <a href="{% url 'pesostaff:view_job_postings' %}">View Job Postings</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,178 @@
+{#<!DOCTYPE html>#}
+{#<html>#}
+{#<head>#}
+{#    <title>Job Posting</title>#}
+{#</head>#}
+{#<body>#}
+{# <script>#}
+{#        function goBack() {#}
+{#            window.location.href = "{% url 'employer:employer_dashboard' %}";#}
+{#        }#}
+{#    </script>#}
+{#    <h1>Job Postings</h1>#}
+{#    <table border="1">#}
+{#        <thead>#}
+{#            <tr>#}
+{#                <th>Title</th>#}
+{#                <th>Description</th>#}
+{#                <th>Location</th>#}
+{#                <th>Salary</th>#}
+{#                <th>Qualifications</th>#}
+{#                <th>Requirements</th>#}
+{##}
+{#            </tr>#}
+{#        </thead>#}
+{#        <tbody>#}
+{#            {% for job_postings in job_postings %}#}
+{#            <tr>#}
+{#                <td>{{ job_postings.title }}</td>#}
+{#                <td>{{ job_postings.description }}</td>#}
+{#                <td>{{ job_postings.company }}</td>#}
+{#                <td>{{ job_postings.salary }}</td>#}
+{#                <td>{{ job_postings.qualifications }}</td>#}
+{#                <td>{{ job_postings.requirements }}</td>#}
+{#            </tr>#}
+{#            {% empty %}#}
+{#            <tr>#}
+{#                <td colspan="5">No jobs available.</td>#}
+{#            </tr>#}
+{#            {% endfor %}#}
+{#        </tbody>#}
+{#    </table>#}
+{##}
+{#    #}
+{#    <form method="post">#}
+{#        {% csrf_token %}#}
+{#        <button type="submit">Apply</button>#}
+{#        <button type="button" onclick="goBack()">Back</button>#}
+{#    </form>#}
+{#</body>#}
+{#</html>#}
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Postings</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background-color: #fff;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+        th {
+            background-color: #007bff;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        .btn-apply {
+            background-color: #28a745;
+            color: white;
+        }
+        .btn-apply:hover {
+            background-color: #218838;
+        }
+        .btn-back {
+            background-color: #6c757d;
+            color: white;
+        }
+        .btn-back:hover {
+            background-color: #5a6268;
+        }
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            h1 {
+                font-size: 24px;
+            }
+            table {
+                font-size: 14px;
+            }
+        }
+    </style>
+    <script>
+        function goBack() {
+            window.location.href = "{% url 'employer:employer_dashboard' %}";
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>Job Postings</h1>
+        <table>
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Description</th>
+                    <th>Location</th>
+                    <th>Salary</th>
+                    <th>Qualifications</th>
+                    <th>Requirements</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for job_postings in job_postings %}
+                <tr>
+                    <td>{{ job_postings.title }}</td>
+                    <td>{{ job_postings.description }}</td>
+                    <td>{{ job_postings.company }}</td>
+                    <td>{{ job_postings.salary }}</td>
+                    <td>{{ job_postings.qualifications }}</td>
+                    <td>{{ job_postings.requirements }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6">No jobs available.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn-apply">Apply</button>
+            <button type="button" class="btn-back" onclick="goBack()">Back</button>
+        </form>
+    </div>
+</body>
+</html>

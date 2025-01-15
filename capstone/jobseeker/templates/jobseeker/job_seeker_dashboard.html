@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+</head>
+<body>
+    <h1>Hello!! {{user.first_name}}</h1>
+    <form action="{% url 'logout_job_seeker' %}" method="post">
+        {% csrf_token %}
+        <button type="submit">Logout</button>
+    </form>
+
+       <!-- Button linking to the URL for 'page2' -->
+    <button type="button" onclick="location.href='{% url 'jobseeker:job_seeker_profile' %}'">View Profile
+    </button>
+
+
+{#    <!-- Redirect Button to job_seeker_profile -->#}
+{#    <form action="{% url 'job_seeker_profile' %}" method="get">#}
+{#        <button type="submit">View Profile</button>#}
+{#    </form>#}
+
+</body>
+</html>

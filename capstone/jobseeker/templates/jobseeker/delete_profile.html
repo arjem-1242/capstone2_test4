@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delete Account</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 500px;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            background: #f9f9f9;
+        }
+        h1 {
+            color: #e63946;
+        }
+        .radio-group {
+            margin: 20px 0;
+        }
+        label {
+            display: block;
+            margin-bottom: 10px;
+            cursor: pointer;
+        }
+        .button-group {
+            margin-top: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .btn-danger {
+            background-color: #e63946;
+            color: #fff;
+        }
+        .btn-secondary {
+            background-color: #6c757d;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Delete Your Account</h1>
+        <p>
+            We're sorry to see you go! Deleting your account is a permanent action and
+            cannot be undone. If you're sure about your decision, please confirm below:
+        </p>
+        <form method="POST" action="{% url 'jobseeker:delete_profile' %}">
+            {% csrf_token %}
+            <label>
+                <input type="radio" name="delete_confirmation" value="yes" required>
+                Yes, delete my account.
+            </label>
+            <label>
+                <input type="radio" name="delete_confirmation" value="no">
+                Cancel my account deletion.
+            </label>
+            <button type="submit">Confirm</button>
+        </form>
+    </div>
+</body>
+</html>

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Postings Overview</title>
+    <style>
+        /* General Styling for the Job Postings Table */
+        h2 {
+            font-family: Arial, sans-serif;
+            font-size: 1.5em;
+            margin-bottom: 1em;
+            color: #333;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1em 0;
+            background-color: #f9f9f9;
+        }
+
+        table th, table td {
+            padding: 0.75em;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+
+        table th {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        table td {
+            background-color: #fff;
+        }
+
+        table tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        table tr:hover {
+            background-color: #ddd;
+        }
+
+        table td a {
+            color: #4CAF50;
+            text-decoration: none;
+        }
+
+        table td a:hover {
+            text-decoration: underline;
+        }
+
+        /* No job postings available */
+        table td[colspan="4"] {
+            text-align: center;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <h2>Job Postings Overview</h2>
+    <table>
+        <thead>
+        <tr>
+            <th>Title</th>
+            <th>Description</th>
+            <th>Salary</th>
+            <th>Date Posted</th>
+
+        </tr>
+        </thead>
+        <tbody>
+        {% for job in job_postings %}
+            <tr>
+                <td>{{ job.title }}</td>
+                <td>{{ job.description|slice:":100" }}{% if job.description|length > 100 %}...{% endif %}</td>
+                <td>{{ job.salary }}</td>
+                <td>{{ job.date_posted }}</td>
+
+
+            </tr>
+        {% empty %}
+            <tr>
+                <td colspan="4">No job postings available.</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

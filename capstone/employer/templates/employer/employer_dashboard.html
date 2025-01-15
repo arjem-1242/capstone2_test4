@@ -1,0 +1,19 @@
+{% extends 'employer/layouts/base.html' %} {% block content %}
+
+    <main id="main" class="main">
+        <h1>Welcome, {{ user.company_name }}</h1> {#  edit this #}
+        <h3>This is your dashboard!</h3>
+
+        <a href="{% url 'employer:create_accreditation_request' %}">Get Accredited</a><br>
+        <a href="{% url 'employer:create_job_posting' %}">Post a Job</a><br>
+        <a href="{% url 'employer:job_posting_list' %}">Job List</a><br>
+        <a href="{% url 'employer:accreditation_request_overview' %}">Request Overview</a><br>
+
+        <form action="{% url 'logout_employer' %}" method="post">
+            {% csrf_token %}
+            <button type="submit">Logout</button>
+        </form>
+
+    </main>
+
+{% endblock %}

@@ -1,0 +1,409 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+{#    <script type="text/javascript">#}
+{#        const updateProfileBulkUrl =  "jobseeker/jobseeker/update_profile/";#}
+{#    </script>#}
+
+    <script src="{% static '/jobseeker/date_update.js' %}"></script>
+
+    <style>
+        .editable {
+            border: 1px solid #ccc;
+            padding: 5px;
+            min-width: 150px;
+            cursor: text;
+        }
+        .editable:focus {
+            outline: 2px solid #007bff;
+        }
+        .success {
+            color: green;
+        }
+        .error {
+            color: red;
+        }
+        .button-group {
+            margin-top: 20px;
+        }
+        .button-group button {
+            margin-right: 10px;
+        }
+        .success {
+            color: green;
+            background-color: #d4edda;
+        }
+        .error {
+            color: red;
+            background-color: #f8d7da;
+        }
+    </style>
+</head>
+<body>
+    <h1>Profile Details</h1>
+
+    <form id="profile-form" method="POST">
+        {% csrf_token %}
+
+        <p><strong>First Name:</strong> {{ profile.user.first_name }}</p>
+        <p><strong>Last Name:</strong> {{ profile.user.last_name }}</p>
+        <p><strong>Email:</strong> {{ profile.user.email }}</p>
+
+        <div class="profile-field">
+            <label>Phone: </label>
+            <div id="phone"
+                 class="editable"
+                 contenteditable="true"
+                 data-field="phone">
+                {{ profile.resume.phone }}
+            </div>
+        </div>
+
+        <div class="profile-field">
+            <label>Skills: </label>
+            <div id="skills"
+                 class="editable"
+                 contenteditable="true"
+                 data-field="skills">
+                {{ profile.resume.skills }}
+            </div>
+        </div>
+
+        <h2>Education
+            <button type="button" id="add-education" class="icon-button" title="Add Education"> + </button>
+        </h2>
+
+        {% for education in education_set.all %}
+            <div class="profile-field" id="education-{{ education.id }}">
+                <label>School: </label>
+                <div class="editable"
+                     contenteditable="true"
+                     data-field="school"
+                     data-id="{{ education.id }}">
+                    {{ education.school }}
+                </div>
+                <label>Degree: </label>
+                <div class="editable"
+                     contenteditable="true"
+                     data-field="program"
+                     data-id="{{ education.id }}">
+                    {{ education.program }}
+                </div>
+                <label>Started: </label>
+               <label>
+                    <input type="date"
+                           class="editable-date"
+                           data-field="started"
+                           data-id="{{ education.id }}"
+                           value="{{ education.started|date:'Y-m-d' }}"
+                           onchange="updateField(this)">
+                </label>
+
+                <label>Finished: </label>
+                <label>
+                    <input type="date"
+                           class="editable-date"
+                           data-field="finished"
+                           data-id="{{ education.id }}"
+                           value="{{ education.finished|date:'Y-m-d' }}"
+                           onchange="updateField(this)">
+                </label>
+
+                <button type="button" class="delete-education" data-id="{{ education.id }}" onclick="deleteEducation({{ education.id }})">
+                    Delete Entry
+                </button>
+            </div>
+        {% endfor %}
+
+
+        <h2>Work History
+            <button type="button" id="add-employment" class="icon-button" title="Add Work History"> + </button>
+        </h2>
+        {% for employment in employment_set.all %}
+            <div class="profile-field" id="employment-{{ employment.id }}">
+                <label>Company: </label>
+                <div class="editable"
+                     contenteditable="true"
+                     data-field="company"
+                     data-id="{{ employment.id }}">
+                    {{ employment.company }}
+                </div>
+                <label>Position: </label>
+                <div class="editable"
+                     contenteditable="true"
+                     data-field="role"
+                     data-id="{{ employment.id }}">
+                    {{ employment.role }}
+                </div>
+                <label>Hired: </label>
+                <label>
+                    <input type="date"
+                           class="editable-date"
+                           data-field="hired"
+                           data-id="{{ employment.id }}"
+                           value="{{ employment.hired|date:'Y-m-d' }}"
+                           onchange="updateField(this)">
+                </label>
+
+                <label>Resigned: </label>
+                <label>
+                    <input type="date"
+                           class="editable-date"
+                           data-field="resigned"
+                           data-id="{{ employment.id }}"
+                           value="{{ employment.resigned|date:'Y-m-d' }}"
+                           onchange="updateField(this)">
+                </label>
+
+                <button type="button" class="delete-employment" data-id="{{ employment.id }}" onclick="deleteEmployment({{ employment.id }})">
+                    Delete Entry
+                </button>
+            </div>
+        {% endfor %}
+
+        <div class="button-group">
+            <button type="button" id="save-changes">Save Changes</button>
+            <button type="button" id="discard-changes">Discard Changes</button>
+        </div>
+
+        <div class="button-group">
+            <a href="{% url 'jobseeker:upload_resume' %}">Upload Resume</a>
+            <a href="{% url 'jobseeker:jobseeker_dashboard' %}">Dashboard</a>
+            <a href="{% url 'jobseeker:delete_profile' %}">Delete Profile</a>
+        </div>
+
+    </form>
+
+    <p id="status-message"></p>
+
+    <script>
+        let originalData = {};
+
+        $(document).ready(function () {
+            // Store original data on load
+            $(".editable").each(function () {
+                const field = $(this).data("field");
+                const id = $(this).data("id") || "global";
+
+                if (!field) {
+                    console.error("Missing 'data-field' attribute on editable element.");
+                    return;
+                }
+
+                if (!originalData[id]) {
+                    originalData[id] = {};
+                }
+                originalData[id][field] = $(this).text().trim();
+            });
+
+            // Save changes
+            $("#save-changes").on("click", function () {
+                const changes = [];
+                $(".editable").each(function () {
+                    const content = $(this).text().trim();
+                    const field = $(this).data("field");
+                    const id = $(this).data("id");
+
+                    // Only include fields that have changed
+                    if (originalData[id] && originalData[id][field] !== content) {
+                        changes.push({ id: id || null, field: field, value: content });
+                    }
+                });
+
+                if (changes.length === 0) {
+                    $("#status-message").text("No changes to save.").removeClass("success error").addClass("info");
+                    return;
+                }
+
+                // Send AJAX request to save changes
+                $.ajax({
+                    type: "POST",
+                    url: "{% url 'jobseeker:update_profile_bulk' %}",
+                    data: {
+                        csrfmiddlewaretoken: "{{ csrf_token }}",
+                        changes: JSON.stringify(changes),
+                    },
+                    beforeSend: function () {
+                        $("#save-changes").prop("disabled", true);
+                        $("#status-message").text("Saving changes...").removeClass("success error").addClass("info");
+                    },
+                    success: function (response) {
+                        $("#status-message").text("Changes saved successfully!").removeClass("error info").addClass("success");
+
+                        // Update original data with the saved values
+                        changes.forEach(change => {
+                            if (!originalData[change.id]) {
+                                originalData[change.id] = {};
+                            }
+                            originalData[change.id][change.field] = change.value;
+                        });
+                    },
+                    error: function () {
+                        $("#status-message").text("Failed to save changes.").removeClass("success info").addClass("error");
+                    },
+                    complete: function () {
+                        $("#save-changes").prop("disabled", false);
+                    },
+                });
+            });
+
+            // Discard changes
+            $("#discard-changes").on("click", function () {
+                $(".editable").each(function () {
+                    const field = $(this).data("field");
+                    const id = $(this).data("id") || "global";
+
+                    if (originalData[id] && originalData[id][field] !== undefined) {
+                        $(this).text(originalData[id][field]);
+                    } else {
+                        console.warn(`No original data found for id '${id}', field '${field}'.`);
+                    }
+                });
+
+                $("#status-message").text("Changes discarded.").removeClass("success error").addClass("info");
+            });
+        });
+
+        $("#add-education").on("click", function() {
+            const newEducationHtml = `
+                <div class="profile-field new-entry">
+                    <label>School: </label>
+                    <div class="editable" contenteditable="true" data-field="school"></div>
+                    <label>Degree: </label>
+                    <div class="editable" contenteditable="true" data-field="program"></div>
+                    <label>Started: </label>
+                    <div class="editable" contenteditable="true" data-field="started"></div>
+                    <label>Finished: </label>
+                    <div class="editable" contenteditable="true" data-field="finished"></div>
+                </div>`;
+            $("h2:contains('Education')").after(newEducationHtml);
+        });
+
+
+
+        $("#add-employment").on("click", function() {
+            const newEmploymentHtml = `
+                <div class="profile-field new-entry">
+                    <label>Company: </label>
+                    <div class="editable" contenteditable="true" data-field="company"></div>
+                    <label>Position: </label>
+                    <div class="editable" contenteditable="true" data-field="role"></div>
+                    <label>Hired: </label>
+                    <div class="editable" contenteditable="true" data-field="hired"></div>
+                    <label>Resigned: </label>
+                    <div class="editable" contenteditable="true" data-field="resigned"></div>
+                </div>`;
+            $("h2:contains('Work History')").after(newEmploymentHtml);
+        });
+
+
+        function deleteEducation(id) {
+            const csrfToken = "{{ csrf_token }}"; // Django CSRF token for POST requests
+            console.log("Deleting education with ID:", id);
+            const url = `/delete-education/${id}/`;
+
+            fetch(url, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": csrfToken,
+                },
+            })
+            .then(response => {
+                if (response.ok) {
+                    document.getElementById(`education-${id}`).remove();
+                } else {
+                    alert("Failed to delete the education record.");
+                }
+            })
+            .catch(error => console.error("Error:", error));
+        }
+
+        function deleteEmployment(id) {
+            const csrfToken = "{{ csrf_token }}"; // Django CSRF token for POST requests
+            console.log("Deleting employment with ID:", id);
+            const url = `/delete-employment/${id}/`;
+
+            fetch(url, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": csrfToken,
+                },
+            })
+            .then(response => {
+                if (response.ok) {
+                    document.getElementById(`employment-${id}`).remove();
+                } else {
+                    alert("Failed to delete the employment record.");
+                }
+            })
+            .catch(error => console.error("Error:", error));
+        }
+
+
+        function updateField(inputElement) {
+            const field = inputElement.dataset.field;
+            const id = inputElement.dataset.id;
+            const value = inputElement.value;
+
+            if (!field || !id || !value) {
+                console.error("Invalid data sent for update:", { field, id, value });
+                return;
+            }
+
+            // Update the status message for visual feedback
+            const statusMessage = document.getElementById("status-message");
+            statusMessage.textContent = `Saving "${field}"...`;
+            statusMessage.className = "info";
+
+            // Prepare data for sending as JSON
+            const changes = [
+                {
+                    field: field,
+                    id: id,
+                    value: value,
+                }
+            ];
+
+            $.ajax({
+                type: "POST",
+                url: "{% url 'jobseeker:update_profile_bulk' %}",
+                data: {
+                    csrfmiddlewaretoken: "{{ csrf_token }}",
+                    changes: JSON.stringify(changes),
+                },
+                success: function (response) {
+                    statusMessage.textContent = `Field "${field}" saved successfully!`;
+                    statusMessage.className = "success";
+                },
+                error: function (xhr, status, error) {
+                    statusMessage.textContent = `Error saving "${field}": ${error}`;
+                    statusMessage.className = "error";
+                },
+            });
+        }
+
+        let debounceTimer;
+            $(".date-field").on("change", function () {
+                clearTimeout(debounceTimer);
+                debounceTimer = setTimeout(() => updateField(this), 60000); // Wait 500ms before saving
+            });
+
+        $(document).ready(function () {
+            // Auto-save for date fields
+            $(".date-field").on("change", function () {
+                updateField(this); // Call your updateField function when a date changes
+            });
+        });
+
+
+    </script>
+</body>
+</html>
