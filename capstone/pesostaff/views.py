@@ -1,176 +1,94 @@
-from django.contrib.auth.decorators import login_required
-from django.db.models.functions import datetime
+from django.db.models import Count
 from django.shortcuts import render, redirect, get_object_or_404
-from django.urls import reverse
-from employer.models import AccreditationRequest, JobPosting
+from django.views.decorators.http import require_POST
+from employer.models import AccreditationRequest, JobPosting, CompanyProfile
+from jobseeker.models import ResumeDocument, JobseekerProfile
 from pesostaff.models import AccreditationRequestApproval
+from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
+from .models import Event
+from .forms import EventForm
+import logging
 
-
-
-# @login_required
-# def staff_dashboard(request):
-#     # Fetch pending accreditation requests and job postings
-#     accreditation_requests = AccreditationRequest.objects.filter(status='Pending')
-#     job_postings = JobPosting.objects.all()
-#
-#     context = {
-#         'accreditation_requests': accreditation_requests,
-#         'job_postings': job_postings,
-#     }
-#     return render(request, 'pesostaff/staff_dashboard.html', context)
-#
-#
-# # @login_required
-# # def approve_accreditation_request(request, id):
-# #     # Fetch the specific accreditation request
-# #     request_to_approve = get_object_or_404(AccreditationRequest, id=id)
-# #
-# #     if request.method == 'POST':
-# #         form = AccreditationRequestForm(request.POST, request.FILES, instance=request_to_approve)
-# #         if form.is_valid():
-# #             accreditation_request = form.save(commit=False)
-# #             if 'approve' in request.POST:
-# #                 accreditation_request.status = 'Approved'
-# #             elif 'reject' in request.POST:
-# #                 accreditation_request.status = 'Rejected'
-# #             accreditation_request.save()
-# #             # Redirect to dashboard after approval or rejection
-# #             return redirect('pesostaff:staff_dashboard')
-# #     else:
-# #         form = AccreditationRequestForm(instance=request_to_approve)
-# #
-# #     context = {
-# #         'form': form,
-# #         'request': request_to_approve,
-# #     }
-# #     return render(request, 'pesostaff/approve_accreditation_request.html', context)
-# #
-# #
-# # def some_view(request):
-# #     accreditation_requests = AccreditationRequest.objects.all()
-# #     return render(request, 'pesostaff/some_template.html', {'accreditation_requests': accreditation_requests})
-#
-#
-# # @login_required
-# # def approve_accreditation_request(request, id):
-# #     # Fetch the specific accreditation request
-# #     request_to_approve = get_object_or_404(AccreditationRequest, id=id)
-# #
-# #     if request.method == 'POST':
-# #         approved = 'approved' in request.POST
-# #         comments = request.POST.get('comments', '')
-# #
-# #         # Create or update the AccreditationRequestApproval instance
-# #         approval, created = AccreditationRequestApproval.objects.get_or_create(
-# #             accreditation_request=request_to_approve
-# #         )
-# #         approval.approved = approved
-# #         approval.comments = comments
-# #         approval.save()
-# #
-# #         # Update the accreditation request status
-# #         request_to_approve.status = 'Approved' if approved else 'Rejected'
-# #         request_to_approve.save()
-# #
-# #         return redirect('pesostaff:staff_dashboard')
-# #
-# #     context = {
-# #         'request': request_to_approve,
-# #     }
-# #     return render(request, 'pesostaff/approve_accreditation_request.html', context)
-#
-# @login_required
-# def requests_view(request):
-#     accreditation_requests = AccreditationRequest.objects.filter(status='Pending')
-#
-#     context = {
-#         'accreditation_requests': accreditation_requests,
-#     }
-#     return render(request, 'pesostaff/approve_accreditation_request.html', context)
-#
-# # @login_required
-# # def requests(request, id):
-# #     if id:
-# #         # Fetch the specific accreditation request
-# #         request_to_approve = get_object_or_404(AccreditationRequest, id=id)
-# #
-# #         if request.method == 'POST':
-# #             # Handle approval or rejection
-# #             if 'approve' in request.POST:
-# #                 approved = True
-# #             elif 'reject' in request.POST:
-# #                 approved = False
-# #
-# #             comments = request.POST.get('comments', '')
-# #
-# #             # Create or update the AccreditationRequestApproval instance
-# #             approval, created = AccreditationRequestApproval.objects.get_or_create(
-# #                 accreditation_request=request_to_approve
-# #             )
-# #             approval.approved = approved
-# #             approval.comments = comments
-# #             approval.save()
-# #
-# #             # Update the accreditation request status
-# #             request_to_approve.status = 'Approved' if approved else 'Rejected'
-# #             request_to_approve.save()
-# #
-# #             return redirect('pesostaff:staff_dashboard')
-# #
-# #         context = {
-# #             'request': request_to_approve,
-# #         }
-# #         return render(request, 'pesostaff/approve_accreditation_request.html', context)
-# #     else:
-# #         # If no specific ID, show a list of requests
-# #         accreditation_requests = AccreditationRequest.objects.all()
-# #         context = {
-# #             'accreditation_requests': accreditation_requests,
-# #         }
-# #         return render(request, 'pesostaff/approve_accreditation_request.html', context)
-#
-#
-# @login_required
-# def accreditation_request_detail(request, request_id):
-#     accreditation_request = get_object_or_404(AccreditationRequest, id=request_id)
-#     return render(request, 'pesostaff/accreditation_request_detail.html', {'accreditation_request': accreditation_request})
-#
-#
-# @login_required
-# def view_job_postings(request):
-#     # Fetch all job postings
-#     job_postings = JobPosting.objects.all()
-#
-#     context = {
-#         'job_postings': job_postings,
-#     }
-#     return render(request, 'pesostaff/view_job_postings.html', context)
-#
-#
-# @login_required
-# def view_job_posting(request, id):
-#     # Fetch the specific job posting
-#     job_posting = get_object_or_404(JobPosting, id=id)
-#
-#     context = {
-#         'job_posting': job_posting,
-#     }
-#     return render(request, 'pesostaff/view_job_postings.html', context)
-#
-# @login_required
-# def logout_view(request):
-#     logout(request)
-#     return redirect('core/index.html')  # Redirect to the login page or another page after logout
-
+logger = logging.getLogger(__name__)
+@login_required
 def staff_dashboard(request):
-    pending_requests_count = AccreditationRequest.objects.filter(status='Pending').count()
+    # Job Locations
+    location_data = (
+        JobPosting.objects.values('location')
+        .annotate(count=Count('id'))
+        .order_by('-count')  # Sort by most frequent locations
+    )
 
-    # Count all job postings
+    #Job Seeker Locations
+    location_job_data = ResumeDocument.objects.values('location').exclude(location='').annotate(count=Count('location'))
+
+    # Job Vacancies
+
+    job_data = JobPosting.objects.values('position', 'date_posted', 'no_of_vacancies')
+
+    # Convert QuerySet to DataFrame
+    df = pd.DataFrame(list(job_data))
+
+    # If there are fewer than 2 job postings, skip clustering
+    if len(df) < 2:
+        return render(request, 'pesostaff/job_vacancy_clustering_report.html', {
+            'graph_json': None,  # No clustering possible
+            'clustered_data': df.to_dict(orient='records')  # Return data as is
+        })
+
+    # Handle missing values
+    df['no_of_vacancies'] = pd.to_numeric(df['no_of_vacancies'], errors='coerce').fillna(0).astype(int)
+    df['date_posted'] = df['date_posted'].astype(str)
+
+    # Apply K-Modes clustering
+    num_clusters = min(3, len(df))  # Ensure clusters do not exceed data points
+    km = KModes(n_clusters=num_clusters, init='Huang', n_init=5, verbose=1)
+
+    clusters = km.fit_predict(df[['position', 'date_posted', 'no_of_vacancies']].astype(str))
+
+    # Add cluster labels to DataFrame
+    df['Cluster'] = clusters
+
+    # Create an interactive line chart using Plotly
+    fig = go.Figure()
+
+    for cluster in sorted(df['Cluster'].unique()):
+        cluster_data = df[df['Cluster'] == cluster].groupby('date_posted')['no_of_vacancies'].sum()
+        fig.add_trace(
+            go.Scatter(
+                x=cluster_data.index,
+                y=cluster_data.values,
+                mode='lines+markers',
+                name=f'Cluster {cluster}'
+            )
+        )
+
+    # Update layout for better aesthetics
+    fig.update_layout(
+        title='Job Vacancies Clustering Report',
+        xaxis_title='Date Posted',
+        yaxis_title='Number of Vacancies',
+        legend_title='Clusters',
+        template='plotly_white',
+    )
+
+    # Convert the Plotly figure to JSON for embedding in the template
+    graph_json = fig.to_json()
+
+    # Count objects
     all_job_postings_count = JobPosting.objects.count()
+    all_job_seeker_count = JobseekerProfile.objects.count()
+    all_accreditation_request = AccreditationRequest.objects.count()
 
     context = {
-        'pending_requests_count': pending_requests_count,
         'all_job_postings_count': all_job_postings_count,
+        'all_job_seeker_count': all_job_seeker_count,
+        'all_accreditation_request': all_accreditation_request,
+        'graph_json': graph_json,
+        'clustered_data': df.to_dict(orient='records'),
+        'location_data': location_data,
+        'location_job_data': location_job_data,
     }
     return render(request, 'pesostaff/staff_dashboard.html', context)
 
@@ -179,187 +97,16 @@ def requests_view(request):
     return render(request, 'pesostaff/request_view.html', {'requests': requests})
 
 def view_job_postings(request):
-    job_postings = JobPosting.objects.all()  # Assume JobList is your model for job postings
+    try:
+        job_postings = JobPosting.objects.all()
+        # Debugging: Print job postings to console (remove in production)
+        for job in job_postings:
+            print(f"Position: {job.position}, Employer: {job.company.user.company_name}")
+    except Exception as e:
+        print(f"Error fetching job postings: {e}")
+        job_postings = []
+
     return render(request, 'pesostaff/view_job_postings.html', {'job_postings': job_postings})
-
-# def accreditation_request_detail(request, id):
-#     # Retrieve the AccreditationRequest
-#     accreditation_request = get_object_or_404(AccreditationRequest, id=id)
-#
-#     # Try to get the related AccreditationRequestApproval
-#     approval = AccreditationRequestApproval.objects.filter(accreditation_request=accreditation_request).first()
-#
-#     if request.method == 'POST':
-#         # Check if the request is to approve or reject the request
-#         if 'approve' in request.POST:
-#             if approval is None:
-#                 # Create a new approval record
-#                 approval = AccreditationRequestApproval(accreditation_request=accreditation_request, approved=True)
-#             else:
-#                 # Update existing approval record
-#                 approval.approved = True
-#             approval.comments = request.POST.get('comments', '')
-#             approval.save()
-#
-#         elif 'reject' in request.POST:
-#             if approval is None:
-#                 # Create a new rejection record
-#                 approval = AccreditationRequestApproval(accreditation_request=accreditation_request, approved=False)
-#             else:
-#                 # Update existing approval record
-#                 approval.approved = False
-#             approval.comments = request.POST.get('comments', '')
-#             approval.save()
-#
-#         # Redirect to the same request detail page after action
-#         return redirect('pesostaff:accreditation_request_detail', id=id)
-#
-#
-#
-#     # Retrieve related documents
-#     related_documents = accreditation_request.get_documents()
-#
-#     # Prepare context with the accreditation request, approval details, and related documents
-#     context = {
-#         'request': accreditation_request,
-#         'approval': approval,
-#         'documents': related_documents,
-#     }
-#
-#     # Render the detail template with the context
-#     return render(request, 'pesostaff/accreditation_request_detail.html', context)
-
-
-# def accreditation_request_detail(request, id):
-#     # Retrieve the AccreditationRequest
-#     accreditation_request = get_object_or_404(AccreditationRequest, id=id)
-#
-#     # Try to get the related AccreditationRequestApproval
-#     approval = AccreditationRequestApproval.objects.filter(accreditation_request=accreditation_request).first()
-#
-#     if request.method == 'POST':
-#         # Check if the request is to approve or reject the request
-#         if 'approve' in request.POST:
-#             if approval is None:
-#                 # Create a new approval record
-#                 approval = AccreditationRequestApproval(accreditation_request=accreditation_request, approved=True)
-#             else:
-#                 # Update existing approval record
-#                 approval.approved = True
-#             approval.comments = request.POST.get('comments', '')
-#             approval.save()
-#
-#         elif 'reject' in request.POST:
-#             if approval is None:
-#                 # Create a new rejection record
-#                 approval = AccreditationRequestApproval(accreditation_request=accreditation_request, approved=False)
-#             else:
-#                 # Update existing approval record
-#                 approval.approved = False
-#             approval.comments = request.POST.get('comments', '')
-#             approval.save()
-#
-#         # Redirect to the same request detail page after action
-#         return redirect('pesostaff:accreditation_request_detail', id=id)
-#
-#     # Retrieve related documents
-#     related_documents = accreditation_request.get_documents()
-#
-#     # Prepare context with the accreditation request, approval details, and related documents
-#     context = {
-#         'request': accreditation_request,
-#         'approval': approval,
-#         'documents': related_documents
-#     }
-#
-#     # Render the detail template with the context
-#     return render(request, 'pesostaff/accreditation_request_detail.html', context)
-
-# @login_required
-# def accreditation(request, id):
-#     if id:
-#         # Fetch the specific accreditation request
-#         request_to_approve = get_object_or_404(AccreditationRequest, id=id)
-#
-#         if request.method == 'POST':
-#             # Initialize approved variable
-#             approved = None
-#
-#             # Handle approval or rejection
-#             if 'approve' in request.POST:
-#                 approved = True
-#             elif 'reject' in request.POST:
-#                 approved = False
-#
-#             comments = request.POST.get('comments', '')
-#
-#             if approved is not None:
-#                 # Create or update the AccreditationRequestApproval instance
-#                 approval, created = AccreditationRequestApproval.objects.get_or_create(
-#                     accreditation_request=request_to_approve
-#                 )
-#                 approval.approved = approved
-#                 approval.comments = comments
-#                 approval.save()
-#
-#                 # Update the accreditation request status
-#                 request_to_approve.status = 'Approved' if approved else 'Rejected'
-#                 request_to_approve.save()
-#
-#                 return redirect('pesostaff:staff_dashboard')
-#
-#         context = {
-#             'request': request_to_approve,
-#         }
-#         return render(request, 'pesostaff:accreditation_request_detail.html', context)
-#     else:
-#         # If no specific ID, show a list of requests
-#         accreditation_requests = AccreditationRequest.objects.all()
-#         context = {
-#             'accreditation_requests': accreditation_requests,
-#         }
-#         return render(request, 'pesostaff:accreditation_request_detail.html', context)
-#
-
-#
-# def accreditation_request_detail(request, id):
-#     accreditation_request = get_object_or_404(AccreditationRequest, id=id)
-#     approval = AccreditationRequestApproval.objects.filter(accreditation_request=accreditation_request).first()
-#
-#     if request.method == 'POST':
-#         if 'approve' in request.POST:
-#             if approval is None:
-#                 approval = AccreditationRequestApproval(accreditation_request=accreditation_request, approved=True)
-#             else:
-#                 approval.approved = True
-#             approval.comments = request.POST.get('comments', '')
-#             approval.save()
-#
-#             accreditation_request.status = 'Approved'
-#             accreditation_request.save()
-#
-#         elif 'reject' in request.POST:
-#             if approval is None:
-#                 approval = AccreditationRequestApproval(accreditation_request=accreditation_request, approved=False)
-#             else:
-#                 approval.approved = False
-#             approval.comments = request.POST.get('comments', '')
-#             approval.save()
-#
-#             accreditation_request.status = 'Rejected'
-#             accreditation_request.save()
-#
-#         return redirect('pesostaff:accreditation_request_detail', id=id)
-#
-#     related_documents = accreditation_request.get_documents()
-#
-#     context = {
-#         'request': accreditation_request,
-#         'approval': approval,
-#         'documents': related_documents
-#     }
-#
-#     return render(request, 'pesostaff/accreditation_request_detail.html', context)
 
 def accreditation_request_detail(request, id):
     accreditation_request = get_object_or_404(AccreditationRequest, id=id)
@@ -389,31 +136,265 @@ def accreditation_request_detail(request, id):
 
     return render(request, 'pesostaff/accreditation_request_detail.html', context)
 
-# def approve_request(request, id):
-#     accreditation_request = get_object_or_404(AccreditationRequest, id=id)
-#     comments = request.POST.get('comments', '')
-#
-#     approval, created = AccreditationRequestApproval.objects.get_or_create(
-#         accreditation_request=accreditation_request
-#     )
-#     approval.approved = True
-#     approval.comments = comments
-#     approval.save()
-#
-#     accreditation_request.status = 'Approved'
-#     accreditation_request.save()
-#
-# def reject_request(request, id):
-#     accreditation_request = get_object_or_404(AccreditationRequest, id=id)
-#     comments = request.POST.get('comments', '')
-#
-#     approval, created = AccreditationRequestApproval.objects.get_or_create(
-#         accreditation_request=accreditation_request
-#     )
-#     approval.approved = False
-#     approval.comments = comments
-#     approval.save()
-#
-#     accreditation_request.status = 'Rejected'
-#     accreditation_request.save()
-#
+
+@require_POST
+def add_event(request):
+    if request.method == 'POST':
+        print("Received POST data:", request.POST)  # Debugging line
+
+        form = EventForm(request.POST)
+        if form.is_valid():
+            event = form.save(commit=False)
+
+            # Debugging: Print extracted values
+            print("Extracted start_date:", event.start_date)
+            print("Extracted end_date:", event.end_date)
+
+            if not event.start_date or not event.end_date:
+                return JsonResponse({'error': 'Start date and End date are required.'}, status=400)
+
+            event.save()
+
+            return JsonResponse({
+                'id': event.id,
+                'title': event.title,
+                'start': event.start_date.isoformat(),
+                'end': event.end_date.isoformat(),
+            })
+        else:
+            print("Form errors:", form.errors)  # Debugging form errors
+            return JsonResponse({'error': 'Invalid form submission.', 'errors': form.errors}, status=400)
+
+
+def update_event(request, event_id):
+    """Handles event updating."""
+    event = get_object_or_404(Event, id=event_id)
+
+    if request.method == 'POST':
+        form = EventForm(request.POST, instance=event)
+        if form.is_valid():
+            form.save()
+            return JsonResponse({'message': 'Event updated successfully'})
+        return JsonResponse({'errors': form.errors}, status=400)
+
+    return JsonResponse({'error': 'Invalid request'}, status=400)
+
+
+@require_POST
+def delete_event(request):
+    """Handles event deletion via AJAX."""
+    if request.user.is_staff:
+        event_id = request.POST.get('event_id')
+        event = get_object_or_404(Event, pk=event_id)
+        event.delete()
+        return JsonResponse({'message': 'Event deleted successfully!'})
+
+    return JsonResponse({'error': 'Unauthorized'}, status=403)
+
+
+def get_events(request):
+    """Fetches all events for display."""
+    events = Event.objects.all()
+    event_data = [
+        {
+            'id': event.id,
+            'title': event.title,
+            'description': event.description,
+            'location': event.location,
+            'start': event.start_date.isoformat(),
+            'end': event.end_date.isoformat(),
+        }
+        for event in events
+    ]
+    return JsonResponse(event_data, safe=False)
+
+
+def manage_events(request):
+    """Handles event management for staff users."""
+    if not request.user.is_staff:
+        return redirect('home')
+
+    message = None
+    form = EventForm()
+
+    if request.method == 'POST':
+        if 'add_event' in request.POST:
+            form = EventForm(request.POST)
+            if form.is_valid():
+                form.save()
+                message = "Event added successfully!"
+                form = EventForm()  # Reset form
+
+        elif 'update_event' in request.POST:
+            event = get_object_or_404(Event, pk=request.POST.get('event_id'))
+            form = EventForm(request.POST, instance=event)
+            if form.is_valid():
+                form.save()
+                message = "Event updated successfully!"
+
+        elif 'delete_event' in request.POST:
+            event = get_object_or_404(Event, pk=request.POST.get('event_id'))
+            event.delete()
+            message = "Event deleted successfully!"
+
+    events = Event.objects.all()
+    return render(request, 'pesostaff/manage_events.html', {'form': form, 'events': events, 'message': message})
+
+
+def event_list(request):
+    events = Event.objects.all()
+    event_data = []
+    for event in events:
+        event_info = {
+            'title': event.title,
+            'description': event.description,
+            'location': event.location,
+            'id': event.id,
+        }
+
+        # Ensure start_time and end_time are not None before calling isoformat()
+        if event.start_date:
+            event_info['start'] = event.start_date.isoformat()
+        else:
+            event_info['start'] = None
+
+        if event.end_date:
+            event_info['end'] = event.end_date.isoformat()
+        else:
+            event_info['end'] = None
+
+        event_data.append(event_info)
+
+    return JsonResponse(event_data, safe=False)
+
+
+def job_location_report(request):
+    # Get job postings grouped by location
+    location_data = (
+        JobPosting.objects.values('location')
+        .annotate(count=Count('id'))
+        .order_by('-count')  # Sort by most frequent locations
+    )
+
+    context = {
+        'location_data': location_data
+    }
+
+    return render(request, 'pesostaff/job_location_report.html', context)
+
+
+def jobseeker_location_report(request):
+    # Querying job seekers by location
+    location_job_data = ResumeDocument.objects.values('location').exclude(location='').annotate(count=Count('location'))
+
+    return render(request, 'pesostaff/jobseeker_location_report.html', {'location_job_data': location_job_data})
+
+
+
+from employer.models import JobPosting
+import pandas as pd
+from kmodes.kmodes import KModes
+import plotly.graph_objects as go
+from django.shortcuts import render
+
+def job_vacancy_clustering_report(request):
+    # Retrieve job posting data
+    job_data = JobPosting.objects.values('position', 'date_posted', 'no_of_vacancies')
+
+    # Convert QuerySet to DataFrame
+    df = pd.DataFrame(list(job_data))
+
+    # If there are fewer than 2 job postings, skip clustering
+    if len(df) < 2:
+        return render(request, 'pesostaff/job_vacancy_clustering_report.html', {
+            'graph_json': None,  # No clustering possible
+            'clustered_data': df.to_dict(orient='records')  # Return data as is
+        })
+
+    # Handle missing values
+    df['no_of_vacancies'] = pd.to_numeric(df['no_of_vacancies'], errors='coerce').fillna(0).astype(int)
+    df['date_posted'] = df['date_posted'].astype(str)
+
+    # Apply K-Modes clustering
+    num_clusters = min(3, len(df))  # Ensure clusters do not exceed data points
+    km = KModes(n_clusters=num_clusters, init='Huang', n_init=5, verbose=1)
+
+    clusters = km.fit_predict(df[['position', 'date_posted', 'no_of_vacancies']].astype(str))
+
+    # Add cluster labels to DataFrame
+    df['Cluster'] = clusters
+
+    # Create an interactive line chart using Plotly
+    fig = go.Figure()
+
+    for cluster in sorted(df['Cluster'].unique()):
+        cluster_data = df[df['Cluster'] == cluster].groupby('date_posted')['no_of_vacancies'].sum()
+        fig.add_trace(
+            go.Scatter(
+                x=cluster_data.index,
+                y=cluster_data.values,
+                mode='lines+markers',
+                name=f'Cluster {cluster}'
+            )
+        )
+
+    # Update layout for better aesthetics
+    fig.update_layout(
+        title='Job Vacancies Clustering Report',
+        xaxis_title='Date Posted',
+        yaxis_title='Number of Vacancies',
+        legend_title='Clusters',
+        template='plotly_white',
+    )
+
+    # Convert the Plotly figure to JSON for embedding in the template
+    graph_json = fig.to_json()
+
+    # Pass data and graph to the template
+    context = {
+        'graph_json': graph_json,
+        'clustered_data': df.to_dict(orient='records'),
+    }
+
+    return render(request, 'pesostaff/job_vacancy_clustering_report.html', context)
+
+
+def jobseeker_list(request):
+    jobseekers = JobseekerProfile.objects.select_related(
+        'user', 'resume'
+    ).prefetch_related(
+        'resume__education_entries',  # Ensure correct related name
+        'resume__employment_entries',  # Ensure correct related name
+    )
+
+    jobseeker_data = []
+    for jobseeker in jobseekers:
+        phone = jobseeker.resume.phone
+        educations = list(jobseeker.resume.education_entries.all())
+        employments = list(jobseeker.resume.employment_entries.all())
+        max_rows = max(len(educations), len(employments), 1)
+        row_indexes = list(range(max_rows))
+        educ_count = len(jobseeker.resume.education_entries.all())
+        emp_count = len(jobseeker.resume.employment_entries.all())
+        jobseeker.max_rows = max(educ_count, emp_count, 1)
+
+        logger.info(f"Jobseeker: {jobseeker.user.first_name} - Phone: {jobseeker.resume.phone} - Educations: {educations} - Employments: {employments}")
+
+        jobseeker_data.append({
+            'jobseeker': jobseeker,
+            'phone': phone,
+            'educations': educations,
+            'employments': employments,
+            'max_rows': max_rows,
+            'row_indexes': row_indexes,
+            'educ_count': educ_count,
+            'emp_count': emp_count,
+            'jobseeker.max_rows': jobseeker.max_rows,
+        })
+
+    logger.info(f"Final jobseeker_data: {jobseeker_data}")
+    return render(request, 'pesostaff/jobseeker_list.html', {'jobseekers': jobseeker_data})
+
+
+
+

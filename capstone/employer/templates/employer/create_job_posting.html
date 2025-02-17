@@ -1,153 +1,27 @@
-{#<!doctype html>#}
-{#<html lang="en">#}
-{#<head>#}
-{#    <meta charset="UTF-8">#}
-{#    <meta name="viewport"#}
-{#          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">#}
-{#    <meta http-equiv="X-UA-Compatible" content="ie=edge">#}
-{#    <title>Document</title>#}
-{#</head>#}
-{#<body>#}
-{#<script>#}
-{#        function goBack() {#}
-{#            window.location.href = "{% url 'employer:employer_dashboard' %}";#}
-{#        }#}
-{#    </script>#}
-{#    <div>#}
-{#        <h1>Post a Job now</h1>#}
-{#        <form action="{% url 'employer:create_job_posting' %}" method="post">#}
-{#            {% csrf_token %}#}
-{#            {{ form.as_p }}#}
-{#            <button type="submit">Post</button>#}
-{#            <button type="button" onclick="goBack()">Back</button>#}
-{#        </form>#}
-{#    </div>#}
-{#</body>#}
-{#</html>#}
-{##}
-{#<!doctype html>#}
-{#<html lang="en">#}
-{#<head>#}
-{#    <meta charset="UTF-8">#}
-{#    <meta name="viewport"#}
-{#          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">#}
-{#    <meta http-equiv="X-UA-Compatible" content="ie=edge">#}
-{#    <title>Post a Job</title>#}
-{#    <style>#}
-{#        body {#}
-{#            font-family: Arial, sans-serif;#}
-{#            background-color: #f4f4f4;#}
-{#            margin: 0;#}
-{#            padding: 20px;#}
-{#        }#}
-{#        .container {#}
-{#            max-width: 600px;#}
-{#            margin: auto;#}
-{#            background-color: #fff;#}
-{#            padding: 20px;#}
-{#            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);#}
-{#            border-radius: 10px;#}
-{#        }#}
-{#        h1 {#}
-{#            text-align: center;#}
-{#            color: #333;#}
-{#        }#}
-{#        form {#}
-{#            margin-top: 20px;#}
-{#        }#}
-{#        label {#}
-{#            font-weight: bold;#}
-{#            color: #555;#}
-{#        }#}
-{#        input[type="text"], textarea, select {#}
-{#            width: 100%;#}
-{#            padding: 10px;#}
-{#            border: 1px solid #ddd;#}
-{#            border-radius: 5px;#}
-{#            margin-top: 5px;#}
-{#            margin-bottom: 15px;#}
-{#            box-sizing: border-box;#}
-{#        }#}
-{#        button {#}
-{#            padding: 10px 20px;#}
-{#            font-size: 16px;#}
-{#            border: none;#}
-{#            border-radius: 5px;#}
-{#            cursor: pointer;#}
-{#        }#}
-{#        .btn-submit {#}
-{#            background-color: #007bff;#}
-{#            color: white;#}
-{#            margin-right: 10px;#}
-{#        }#}
-{#        .btn-submit:hover {#}
-{#            background-color: #0056b3;#}
-{#        }#}
-{#        .btn-back {#}
-{#            background-color: #6c757d;#}
-{#            color: white;#}
-{#        }#}
-{#        .btn-back:hover {#}
-{#            background-color: #5a6268;#}
-{#        }#}
-{#        @media (max-width: 768px) {#}
-{#            .container {#}
-{#                padding: 10px;#}
-{#            }#}
-{#            h1 {#}
-{#                font-size: 24px;#}
-{#            }#}
-{#        }#}
-{#    </style>#}
-{#    <script>#}
-{#        function goBack() {#}
-{#            window.location.href = "{% url 'employer:employer_dashboard' %}";#}
-{#        }#}
-{#    </script>#}
-{#</head>#}
-{#<body>#}
-{#    <div class="container">#}
-{#        <h1>Post a Job Now</h1>#}
-{#        <form action="{% url 'employer:create_job_posting' %}" method="post">#}
-{#            {% csrf_token %}#}
-{#            {{ form.as_p }}#}
-{#            <button type="submit" class="btn-submit">Post</button>#}
-{#            <button type="button" class="btn-back" onclick="goBack()">Back</button>#}
-{#        </form>#}
-{#    </div>#}
-{#</body>#}
-{#</html>#}
-
-
-<!doctype html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Post a Job</title>
+{% extends 'employer/layouts/base.html' %} {% block content %} {% load static %}
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 20px;
-        }
-        .container {
-            max-width: 600px;
-            margin: auto;
-            background-color: #fff;
-            padding: 20px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            border-radius: 10px;
-        }
-        h1 {
-            text-align: center;
-            color: #333;
-        }
         form {
-            margin-top: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 30px;
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        form p {
+            margin-bottom: 15px;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #28a745;
+            box-shadow: 0px 0px 5px rgba(40, 167, 69, 0.5);
         }
         label {
             font-weight: bold;
@@ -162,45 +36,6 @@
             margin-bottom: 15px;
             box-sizing: border-box;
         }
-        button {
-            padding: 10px 20px;
-            font-size: 16px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        .btn-submit {
-            background-color: #007bff;
-            color: white;
-            margin-right: 10px;
-        }
-        .btn-submit:hover {
-            background-color: #0056b3;
-        }
-        .btn-back {
-            background-color: #6c757d;
-            color: white;
-        }
-        .btn-back:hover {
-            background-color: #5a6268;
-        }
-        .messages {
-            list-style: none;
-            padding: 0;
-            margin-bottom: 20px;
-        }
-        .messages li {
-            padding: 10px;
-            border-radius: 5px;
-            margin-bottom: 10px;
-            color: #fff;
-        }
-        .messages li.error {
-            background-color: #dc3545;
-        }
-        .messages li.success {
-            background-color: #28a745;
-        }
         @media (max-width: 768px) {
             .container {
                 padding: 10px;
@@ -210,32 +45,42 @@
             }
         }
     </style>
+
     <script>
         function goBack() {
             window.location.href = "{% url 'employer:employer_dashboard' %}";
         }
     </script>
-</head>
-<body>
-    <div class="container">
-        <h1>Post a Job Now</h1>
 
-        <!-- Messages Section -->
-        {% if messages %}
-            <ul class="messages">
-                {% for message in messages %}
-                    <li class="{{ message.tags }}">{{ message }}</li>
-                {% endfor %}
-            </ul>
-        {% endif %}
+<main class="main" id="main">
+    <section class="about section" data-aos="fade-up">
+        <!-- Section Title -->
+          <div class="container section-title" data-aos="fade-up">
+            <h2>Post a Job</h2>
+            <p>Necessitatibus eius consequatur ex aliquid fuga eum quidem sint consectetur velit</p>
+          </div><!-- End Section Title -->
 
-        <!-- Form Section -->
-        <form action="{% url 'employer:create_job_posting' %}" method="post">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit" class="btn-submit">Post</button>
-            <button type="button" class="btn-back" onclick="goBack()">Back</button>
-        </form>
-    </div>
-</body>
-</html>
+        <div class="container">
+            <!-- Messages Section -->
+            {% if messages %}
+                <ul class="messages">
+                    {% for message in messages %}
+                        <li class="{{ message.tags }}">{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+
+            <!-- Form Section -->
+            <form action="{% url 'employer:create_job_posting' %}" method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class="btn btn-outline-success">Post</button>
+                <button type="button" class="btn btn-outline-dark" onclick="goBack()">Back</button>
+            </form>
+        </div>
+    </section>
+
+</main>
+
+
+{% endblock %}

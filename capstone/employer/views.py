@@ -71,10 +71,24 @@ def create_job_posting(request):
 
     return render(request, 'employer/create_job_posting.html', {'form': form})
 
+
 @login_required
 def job_posting_list(request):
-    job_postings = JobPosting.objects.all()
-    return render(request, 'employer/job_posting_list.html', {'job_postings': job_postings})
+    # Get the logged-in employer's company profile
+    try:
+        employer = CompanyProfile.objects.get(user=request.user)
+    except CompanyProfile.DoesNotExist:
+        messages.error(request, "You must have a company profile to view job postings.")
+        return redirect('employer:employer_dashboard')
+
+    # Filter job postings for the logged-in employer's company
+    job_postings = JobPosting.objects.filter(company=employer)
+
+    context = {
+        'job_postings': job_postings
+    }
+
+    return render(request, 'employer/job_posting_list.html', context)
 
 @login_required
 def update_job_posting(request, pk):
@@ -94,45 +108,50 @@ def create_accreditation_request(request):
     if request.method == 'POST':
         form = AccreditationRequestForm(request.POST, request.FILES)
         if form.is_valid():
-            accreditation_request = form.save()
+            # Set the company_profile to the logged-in user's company profile
+            company_profile = CompanyProfile.objects.get(user=request.user)
+
+            # Check if there's already an unreviewed accreditation request for this company
+            existing_request = AccreditationRequest.objects.filter(
+                company_profile=company_profile,
+                status__in=['Pending', 'In Review']  # Adjust according to your status choices
+            ).first()
+
+            if existing_request:
+                # If there's an unreviewed request, return an error or a message
+                form.add_error(None, "You already have an accreditation request in review.")
+                return render(request, 'employer/create_accreditation_request.html', {'form': form})
+
+            # No existing unreviewed request, proceed with saving the new one
+            accreditation_request = form.save(commit=False)  # Don't save to the database yet
+            accreditation_request.company_profile = company_profile  # Assign company profile
+            accreditation_request.status = 'Pending'  # Assuming the default status is 'Pending'
+            accreditation_request.save()  # Now save the object to the database
+
             return redirect('employer:employer_dashboard')
     else:
         form = AccreditationRequestForm()
 
     return render(request, 'employer/create_accreditation_request.html', {'form': form})
 
+
 # @login_required
 # def create_accreditation_request(request):
 #     if request.method == 'POST':
 #         form = AccreditationRequestForm(request.POST, request.FILES)
 #         if form.is_valid():
-#             # Save the form data
-#             accreditation_request = form.save()
+#             # Set the company_profile to the logged-in user's company profile
+#             company_profile = CompanyProfile.objects.get(user=request.user)
+#             accreditation_request = form.save(commit=False)  # Don't save to the database yet
+#             accreditation_request.company_profile = company_profile  # Assign company profile
+#             accreditation_request.save()  # Now save the object to the database
 #
-#             # Perform OCR and validate the document
-#             if accreditation_request.document:
-#                 # Perform OCR and update document_text
-#                 accreditation_request.perform_ocr()
-#
-#                 # Validate the document based on extracted text
-#                 if accreditation_request.validate_document():
-#                     accreditation_request.status = 'Pending Review'
-#                 else:
-#                     accreditation_request.status = 'Rejected'
-#
-#             else:
-#                 # Set the status to 'Rejected' if no document is provided
-#                 accreditation_request.status = 'Rejected'
-#
-#             # Save the updated status
-#             accreditation_request.save()
-#
-#             # Redirect to a success page or dashboard
 #             return redirect('employer:employer_dashboard')
 #     else:
 #         form = AccreditationRequestForm()
 #
 #     return render(request, 'employer/create_accreditation_request.html', {'form': form})
+
 
 def load_accreditation_form_fields(request):
     company_type = request.GET.get('company_type')
@@ -183,19 +202,26 @@ def save_candidate(request, job_id, applicant_id):
     return redirect(reverse('employer:saved_candidates_list'))
 
 
-# def accreditation_request_overview(request):
-#     # Fetch and process the accreditation request data
-#     accreditation_requests = AccreditationRequest.objects.all()
-#     return render(request, 'employer/accreditation_request_overview.html', {'accreditation_requests': accreditation_requests})
-
-from pesostaff.models import AccreditationRequestApproval
-
-
+@login_required
 def accreditation_request_overview(request):
-    # Get all accreditation requests
-    accreditation_requests = AccreditationRequest.objects.all()
+    try:
+        employer = CompanyProfile.objects.get(user=request.user)
+    except CompanyProfile.DoesNotExist:
+        messages.error(request, "You must have a company profile to view accreditation requests.")
+        return redirect('employer:dashboard')
 
-    # Loop through accreditation requests and get associated approval comments
+    # Debug: print the employer's company profile
+    print(f"Employer company profile: {employer}")
+
+    # Filter accreditation requests for the logged-in employer's company profile
+    accreditation_requests = AccreditationRequest.objects.filter(company_profile=employer)
+    print(f"Filtered accreditation requests: {accreditation_requests}")  # Debugging line
+
+    # Check if any accreditation requests were found
+    if not accreditation_requests.exists():
+        print("No accreditation requests found for this employer.")
+
+    # Continue with the rest of the code...
     requests_with_approval = []
     for acc_request in accreditation_requests:
         approval = AccreditationRequestApproval.objects.filter(accreditation_request=acc_request).first()
@@ -212,12 +238,3 @@ def accreditation_request_overview(request):
 
     return render(request, 'employer/accreditation_request_overview.html', context)
 
-# def accreditation_request_overview(request):
-#     requests = AccreditationRequest.objects.all()
-#     # Fetch approval details if they exist
-#     approvals = {req.id: AccreditationRequestApproval.objects.filter(accreditation_request=req).first() for req in requests}
-#     context = {
-#         'requests': requests,
-#         'approvals': approvals,
-#     }
-#     return render(request, 'employer/accreditation_request_overview.html', context)

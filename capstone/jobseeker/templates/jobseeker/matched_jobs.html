@@ -1,0 +1,63 @@
+{% extends 'jobseeker/layouts/base.html' %} {% block content %} {% load static %}
+
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        th, td {
+            text-align: left;
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #5cb874;
+            color: white;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+    </style>
+
+<main class="main" id="main">
+
+    <section>
+        <div class="container section-title" data-aos="fade-up">
+            <h2>Your Matched Jobs</h2>
+            <p>Necessitatibus eius consequatur ex aliquid fuga eum quidem sint consectetur velit</p>
+        </div><!-- End Section Title -->
+
+        <div class="container" data-aos="fade-up">
+            {% load custom_filters %}
+            <table class="table-primary">
+                <thead>
+                    <tr>
+                        <th>Job Title</th>
+                        <th>Job Description</th>
+                        <th>Skills</th>
+                        <th>Location</th>
+                        <th>Requirements</th>
+                        <th>Match Score</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    {% for job in matched_jobs %}
+                        <tr>
+                            <td>{{ job.position }}</td>
+                            <td>{{ job.job_description }}</td>
+                            <td>{{ job.skills.split|join:", " }}</td>
+                            <td>{{ job.location }}</td>
+                            <td>{{ job.requirements.split|join:"," }}</td>
+                            <td>{{ job.match_score }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
+
+{% endblock %}

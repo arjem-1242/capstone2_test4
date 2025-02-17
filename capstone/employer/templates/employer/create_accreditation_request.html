@@ -1,53 +1,86 @@
 {% extends 'employer/layouts/base.html' %} {%  block content %}
 
-    <main id="main" class="main">
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                const companyTypeField = document.getElementById('id_company_type');
-                const fileFields = {
-                    'Direct Company': ['sec_registration', 'dti_permit', 'business_permit', 'latest_job_posting', 'no_pending_case_certificate'],
-                    'Manpower Agencies/Cooperative': ['sec_registration', 'dti_permit', 'business_permit', 'sss_membership_registration', 'latest_payment_receipt', 'dole_permit', 'bir_registration', 'tied_companies_list', 'phil_job_net_registration', 'latest_job_posting', 'no_pending_case_certificate'],
-                    'For Overseas Manpower Agency': ['poea_permit', 'dti_permit', 'business_permit', 'dole_permit', 'no_pending_case_certificate', 'latest_job_order_with_qualifications'],
-                };
+    <style>
+        form {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 30px;
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        form p {
+            margin-bottom: 15px;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #28a745;
+            box-shadow: 0px 0px 5px rgba(40, 167, 69, 0.5);
+        }
+    </style>
 
-                function updateFileFields() {
-                    const companyType = companyTypeField.value;
-                    Object.keys(fileFields).forEach(type => {
-                        fileFields[type].forEach(field => {
-                            const fieldElement = document.getElementById(`id_${field}`);
-                            if (fieldElement) {
-                                const display = fileFields[companyType]?.includes(field) ? 'block' : 'none';
-                                fieldElement.closest('p').style.display = display;
-                            }
-                        });
-                    });
-                }
+<main id="main" class="main">
 
-                companyTypeField.addEventListener('change', updateFileFields);
-                updateFileFields();  // Initial update based on pre-selected value
-            });
-        </script>
-        <script>
-            function goBack() {
-                window.location.href = "{% url 'employer:employer_dashboard' %}";
-            }
-        </script>
+    <section class="about about section" data-aos="fade-up">
+        <!-- Section Title -->
+          <div class="container section-title" data-aos="fade-up">
+            <h2>Create Accreditation Request</h2>
+            <p>Necessitatibus eius consequatur ex aliquid fuga eum quidem sint consectetur velit</p>
+          </div><!-- End Section Title -->
 
-    <body>
         <div class="container">
-            <h1>Create Accreditation Request</h1>
 
             <form method="post" enctype="multipart/form-data">
+                <h3 class="card-title">Kindly fill out this form.</h3>
+                <hr>
                 {% csrf_token %}
                 {{ form.as_p }}
 
-                <button type="submit" class="btn btn-primary">Apply</button>
-                <button type="button" class="btn btn-secondary" onclick="goBack()">Back</button>
+                <button type="submit" class="btn btn-outline-success">Apply</button>
+                <button type="button" class="btn btn-outline-dark" onclick="goBack()">Back</button>
             </form>
         </div>
-    </body>
+    </section>
 
-    </main>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const companyTypeField = document.getElementById('id_company_type');
+            const fileFields = {
+                'Direct Company': ['sec_registration', 'dti_permit', 'business_permit', 'latest_job_posting', 'no_pending_case_certificate'],
+                'Manpower Agencies/Cooperative': ['sec_registration', 'dti_permit', 'business_permit', 'sss_membership_registration', 'latest_payment_receipt', 'dole_permit', 'bir_registration', 'tied_companies_list', 'phil_job_net_registration', 'latest_job_posting', 'no_pending_case_certificate'],
+                'For Overseas Manpower Agency': ['poea_permit', 'dti_permit', 'business_permit', 'dole_permit', 'no_pending_case_certificate', 'latest_job_order_with_qualifications'],
+            };
+
+            function updateFileFields() {
+                const companyType = companyTypeField.value;
+                Object.keys(fileFields).forEach(type => {
+                    fileFields[type].forEach(field => {
+                        const fieldElement = document.getElementById(`id_${field}`);
+                        if (fieldElement) {
+                            const display = fileFields[companyType]?.includes(field) ? 'block' : 'none';
+                            fieldElement.closest('p').style.display = display;
+                        }
+                    });
+                });
+            }
+
+            companyTypeField.addEventListener('change', updateFileFields);
+            updateFileFields();  // Initial update based on pre-selected value
+        });
+    </script>
+    <script>
+        function goBack() {
+            window.location.href = "{% url 'employer:employer_dashboard' %}";
+        }
+    </script>
+</main>
 
 
 {% endblock %}

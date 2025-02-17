@@ -68,66 +68,10 @@ class CompanyProfileForm(forms.ModelForm):
 class JobPostingForm(forms.ModelForm):
     class Meta:
         model = JobPosting
-        fields = ['title', 'description', 'salary', 'qualifications', 'requirements']
+        fields = ['position', 'job_description', 'salary', 'skills', 'location', 'requirements', 'no_of_vacancies']
 
 nlp = spacy.load("en_core_web_sm")
 
-# class AccreditationRequestForm(forms.ModelForm):
-#     class Meta:
-#         model = AccreditationRequest
-#         fields = [
-#             'company', 'company_type', 'sec_registration', 'dti_permit', 'business_permit',
-#             'latest_job_posting', 'no_pending_case_certificate', 'dole_permit',
-#             'bir_registration', 'tied_companies_list', 'phil_job_net_registration', 'poea_permit', 'latest_job_order_with_qualifications',
-#             'latest_payment_receipt', 'sss_membership_registration',
-#         ]
-#         widgets = {
-#             'company_type': forms.Select(choices=AccreditationRequest.COMPANY_TYPES),
-#             'sec_registration': forms.ClearableFileInput(attrs={'multiple': False}),
-#             'dti_permit': forms.ClearableFileInput(attrs={'multiple': False}),
-#             'business_permit': forms.ClearableFileInput(attrs={'multiple': False}),
-#             'latest_job_posting': forms.ClearableFileInput(attrs={'multiple': False}),
-#             'latest_job_order_with_qualifications': forms.ClearableFileInput(attrs={'multiple': False}),
-#             'latest_payment_receipt': forms.ClearableFileInput(attrs={'multiple': False}),
-#             'no_pending_case_certificate': forms.ClearableFileInput(attrs={'multiple': False}),
-#             'dole_permit': forms.ClearableFileInput(attrs={'multiple': False}),
-#             'bir_registration': forms.ClearableFileInput(attrs={'multiple': False}),
-#             'sss_membership_registration': forms.ClearableFileInput(attrs={'multiple': False}),
-#             'tied_companies_list': forms.ClearableFileInput(attrs={'multiple': False}),
-#             'phil_job_net_registration': forms.ClearableFileInput(attrs={'multiple': False}),
-#             'poea_permit': forms.ClearableFileInput(attrs={'multiple': False}),
-#         }
-#
-#         def save(self, commit=True):
-#             instance = super().save(commit=False)
-#
-#             file_fields = [
-#                 'sec_registration', 'dti_permit', 'business_permit', 'latest_job_posting',
-#                 'no_pending_case_certificate', 'dole_permit', 'bir_registration',
-#                 'tied_companies_list', 'phil_job_net_registration', 'poea_permit', 'latest_job_order_with_qualifications',
-#                 'latest_payment_receipt', 'sss_membership_registration',
-#             ]
-#
-#             for field_name in file_fields:
-#                 file = self.cleaned_data.get(field_name)  # Access cleaned_data in the save method
-#                 if file:
-#                     try:
-#                         # Perform OCR on the file
-#                         image = Image.open(file)
-#                         extracted_text = pytesseract.image_to_string(image)
-#
-#                         # Save the extracted text into the corresponding field in the instance
-#                         text_field_name = field_name + '_text'
-#                         setattr(instance, text_field_name, extracted_text)
-#
-#                     except Exception as e:
-#                         raise ValidationError(
-#                             f"Error extracting text from {field_name.replace('_', ' ').capitalize()}: {str(e)}")
-#
-#             if commit:
-#                 instance.save()
-#
-#             return instance
 
 class AccreditationRequestForm(forms.ModelForm):
     class Meta:
@@ -139,10 +83,6 @@ class AccreditationRequestForm(forms.ModelForm):
             'company_type': forms.Select(choices=AccreditationRequest.COMPANY_TYPES),
         }
 
-    # def clean_document(self):
-    #     # This method can be customized to handle specific document validation if needed.
-    #     # If you want to handle multiple documents, you should implement separate methods or handle them accordingly.
-    #     return super().clean_document()
 
     def clean(self):
         cleaned_data = super().clean()

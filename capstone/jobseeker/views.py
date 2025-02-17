@@ -1,8 +1,12 @@
 from django.contrib import messages
+from django.core.paginator import Paginator
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+
+from employer.models import JobPosting
+from employer.views import job_posting_list
 from .utils import extract_text_from_resume, parse_resume_text, update_user_resume, handle_new_entry
 from .forms import *
 from datetime import datetime
@@ -11,6 +15,12 @@ from django.http import JsonResponse
 import json
 from django.views.decorators.csrf import csrf_exempt
 from jobseeker.models import ResumeDocument, Education, Employment
+from .job_matching import match_resume_to_jobs
+from .models import *
+from employer.models import *
+from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
+from .models import *
 
 
 logger = logging.getLogger(__name__)
@@ -85,6 +95,9 @@ def upload_resume(request):
 
             # Temporarily store parsed data in the session
             request.session['temp_parsed_data'] = parsed_data
+            # Temporarily store parsed data in the session
+            request.session['temp_parsed_data'] = parsed_data
+            print("Parsed Data Stored in Session:", request.session['temp_parsed_data'])
 
             # # Update user profile with parsed data
             update_user_resume(request.user, parsed_data)
@@ -94,53 +107,31 @@ def upload_resume(request):
     else:
         form = ResumeUploadForm()
     return render(request, 'jobseeker/upload_resume.html', {'form': form})
-#
-# @csrf_exempt
-# def update_profile(request):
-#     if request.method == "POST":
-#         field = request.POST.get("field")
-#         value = request.POST.get("value")
-#         user = request.user
-#         resume = ResumeDocument.objects.get(user=user)
-#
-#         if field in ["phone", "skills"]:
-#             setattr(resume, field, value)
-#             resume.save()
-#             return JsonResponse({"success": True, "message": f"{field} updated successfully!"})
-#
-#         return JsonResponse({"success": False, "message": "Invalid field!"})
-#     return JsonResponse({"success": False, "message": "Invalid request!"})
 
-# def update_profile_bulk(request):
-#     if request.method == "POST":
-#         changes = json.loads(request.POST.get("changes", "[]"))
-#
-#         # Get the resume object
-#         resume = ResumeDocument.objects.get(user=request.user)
-#
-#         for change in changes:
-#             field = change.get("field")
-#             value = change.get("value")
-#             record_id = change.get("id")
-#
-#             if record_id:
-#                 # Update specific Education or Employment records
-#                 if field in ["school", "degree", "started", "finished"]:
-#                     Education.objects.filter(id=record_id).update(**{field: value})
-#                 elif field in ["company", "position", "hired", "resigned"]:
-#                     Employment.objects.filter(id=record_id).update(**{field: value})
-#             else:
-#                 # Handle new entries for Education or Employment
-#                 if field in ["school", "program", "started", "finished", "company", "role", "hired", "resigned"]:
-#                     handle_new_entry(change, resume, request.user)
-#                 else:
-#                     # Update global fields (e.g., resume phone, skills)
-#                     setattr(resume, field, value)
-#                     resume.save()
-#
-#         return JsonResponse({"success": True})
-#
-#     return JsonResponse({"error": "Invalid request method."}, status=400)
+@csrf_exempt
+def update_profile_field(request):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            field = data.get("field")
+            value = data.get("value")
+
+            # Get the user's resume profile (Adjust based on your authentication setup)
+            profile = JobseekerProfile.objects.get(user=request.user)
+            resume = profile.resume # Assuming one-to-one relationship
+
+            # Update only if the field exists in ResumeDocument
+            if hasattr(resume, field):
+                setattr(resume, field, value)
+                resume.save()
+                return JsonResponse({"success": True})
+            else:
+                return JsonResponse({"success": False, "error": "Invalid field"}, status=400)
+
+        except Exception as e:
+            return JsonResponse({"success": False, "error": str(e)}, status=400)
+
+    return JsonResponse({"success": False, "error": "Invalid request"}, status=400)
 
 def update_profile_bulk(request):
     if request.method == "POST":
@@ -182,85 +173,218 @@ def update_profile_bulk(request):
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=500)
 
-# @csrf_exempt
-# def update_education(request):
-#     if request.method == "POST":
-#         field = request.POST.get("field")
-#         value = request.POST.get("value")
-#         education_id = request.POST.get("id")
-#         try:
-#             education = Education.objects.get(id=education_id)
-#             setattr(education, field, value)
-#             education.save()
-#             return JsonResponse({"success": True, "message": f"Education {field} updated successfully!"})
-#         except Education.DoesNotExist:
-#             return JsonResponse({"success": False, "message": "Education record not found!"})
 
-# @csrf_exempt
-# def update_employment(request):
-#     if request.method == "POST":
-#         field = request.POST.get("field")
-#         value = request.POST.get("value")
-#         employment_id = request.POST.get("id")
-#         try:
-#             employment = Employment.objects.get(id=employment_id)
-#             setattr(employment, field, value)
-#             employment.save()
-#             return JsonResponse({"success": True, "message": f"Employment {field} updated successfully!"})
-#         except Employment.DoesNotExist:
-#             return JsonResponse({"success": False, "message": "Employment record not found!"})
-#
-# @login_required
-# def update_profile(request): # Retrieve temporarily parsed data
-#     temp_data = request.session.get('temp_parsed_data', {})
-#
-#     if request.method == 'POST':
-#         # Process form submission to update the profile
-#         profile_form = JobseekerProfileForm(request.POST, instance=request.user)
-#         if profile_form.is_valid():
-#             # Update the user's main profile details
-#             profile_form.save()
-#
-#             # Update related models (Education and Employment)
-#             update_related_models(request.user, temp_data)
-#
-#             # Clear temporary data after saving
-#             request.session.pop('temp_parsed_data', None)
-#
-#             messages.success(request, "Profile updated successfully!")
-#             return redirect('jobseeker:job_seeker_profile')  # Redirect to the profile page
-#
-#     else:
-#         # Pre-fill form with parsed data
-#         profile_form = JobseekerProfileForm(instance=request.user)
-#
-#     return render(request, 'jobseeker/update_profile.html', {
-#         'form': profile_form,
-#         'temp_data': temp_data,
-#     })
+def view_matched_jobs(request):
+    try:
+        logger.info("Attempting to retrieve ResumeDocument for user: %s", request.user)
+
+        # Ensure you're retrieving the correct resume document
+        resume_document = ResumeDocument.objects.get(user=request.user)
+        educ_his = Education.objects.filter(user=request.user)
+        work_his = Employment.objects.filter(user=request.user)
+        logger.info("ResumeDocument retrieved successfully for user: %s", request.user)
+
+        # Prepare resume data for matching
+        resume_data = {
+
+            'skills': resume_document.skills.split(','),  # Assuming skills are stored as a comma-separated string
+            'location': resume_document.location,
+            'requirements': [edu.program for edu in educ_his],  # List of programs
+            'position': [work.role for work in work_his],  # List of roles
+
+        }
+        logger.debug("Prepared resume data for matching: %s", resume_data)
+
+        # Retrieve all job postings
+        job_postings = JobPosting.objects.all()
+        logger.info("Retrieved all job postings. Count: %d", job_postings.count())
+
+        # Match resume to jobs using jobmatching.py
+        matched_jobs = match_resume_to_jobs(resume_data, job_postings)
+        logger.info("Matched jobs retrieved for user %s. Count: %d", request.user, len(matched_jobs))
+
+        # Loop through each job posting and process
+        for job in matched_jobs:
+            # Ensure job has an 'id' field and access it correctly
+            job_posting = next((job_posting for job_posting in job_postings if job_posting.id == job.get('id')), None)
+
+            if job_posting:
+                job_posting_id = job_posting.id  # ✅ Access the job posting ID
+
+                job_skills = job.get('skills', '').split(',') if job.get('skills') else []
+                matched_skills = list(set(resume_data.get('skills', [])) & set(job_skills))
+
+                matched_location = job.get('location', '') if resume_data.get('location', '') == job.get('location',
+                                                                                                         '') else ""
+
+                job_requirements = job.get('requirements', '').split(',') if job.get('requirements') else []
+                matched_education = list(set(resume_data.get('requirements', [])) & set(job_requirements))
+
+                matched_position = job.get('position', '')
+
+                # Create or get matched job record
+                matched_job, created = MatchedJobs.objects.get_or_create(
+                    user=request.user,
+                    resume_id=resume_document.id,  # ✅ Correct resume ID
+                    job_posting_id=job_posting_id,  # ✅ Correct job posting ID
+                    defaults={
+                        'matched_on': timezone.now(),
+                        'matched_skills': ','.join(matched_skills),
+                        'matched_location': matched_location,
+                        'matched_position': matched_position,
+                        'matched_education': ','.join(matched_education),
+                    }
+                )
+
+                if created:
+                    logger.info("Saved matched job: %s for user: %s", matched_position, request.user)
+            else:
+                logger.error("Skipping job due to missing or invalid job posting ID: %s", job)
+
+        return render(request, 'jobseeker/matched_jobs.html', {'matched_jobs': matched_jobs})
+    except ResumeDocument.DoesNotExist:
+        logger.error("ResumeDocument does not exist for user: %s", request.user)
+        return render(request, 'jobseeker/job_seeker_dashboard.html', {'error': 'Resume document not found'})
+    except Exception as e:
+        logger.exception("An error occurred while fetching matched jobs for user: %s", request.user)
+        return render(request, 'jobseeker/job_seeker_dashboard.html', {'error': 'An unexpected error occurred'})
 
 
 @csrf_exempt
-def delete_education(request, id):
+@login_required
+def add_education(request):
+    if request.method == "POST":
+        user = request.user
+
+        # Try to fetch the resume linked to the user
+        try:
+            resume = ResumeDocument.objects.get(user=user)
+        except ResumeDocument.DoesNotExist:
+            return JsonResponse({"error": "Resume not found for the user"}, status=404)
+
+        # Create a blank education entry linked to the resume
+        education = Education.objects.create(
+            user=user, school="", program="", started=None, finished=None, resume=resume
+        )
+
+        return JsonResponse({
+            "message": "New education record created",
+            "id": education.id,
+            "school": education.school,
+            "program": education.program,
+            "started": None,
+            "finished": None,
+            "resume": resume.id  # Include resume ID in response
+        })
+
+    return JsonResponse({"error": "Invalid request"}, status=400)
+
+
+
+@csrf_exempt
+@login_required
+def update_education(request, education_id):
+    if request.method == "POST":
+        user = request.user
+        try:
+            education = Education.objects.get(id=education_id, user=user)
+            field = request.POST.get("field")
+            value = request.POST.get("value")
+
+            if field and value is not None:
+                setattr(education, field, value)  # Dynamically update the field
+                education.save()
+                return JsonResponse({"message": f"{field} updated successfully", "value": value})
+
+            return JsonResponse({"error": "Invalid field or value"}, status=400)
+
+        except Education.DoesNotExist:
+            return JsonResponse({"error": "Education entry not found"}, status=404)
+
+    return JsonResponse({"error": "Invalid request"}, status=400)
+
+
+
+
+@csrf_exempt
+@login_required
+def delete_education(request, education_id):
     if request.method == "POST":
         try:
-            education = Education.objects.get(id=id)
+            education = Education.objects.get(id=education_id, user=request.user)
             education.delete()
-            return JsonResponse({"success": True})
+            return JsonResponse({"message": "Education entry deleted successfully"})
         except Education.DoesNotExist:
-            return JsonResponse({"success": False, "error": "Education not found."})
-    return JsonResponse({"success": False, "error": "Invalid request method."})
+            return JsonResponse({"error": "Education entry not found"}, status=404)
+
+    return JsonResponse({"error": "Invalid request"}, status=400)
+
+
 
 @csrf_exempt
-def delete_employment(request, id):
+@login_required
+def add_employment(request):
+    if request.method == "POST":
+        user = request.user
+
+        # Try to fetch the resume linked to the user
+        try:
+            resume = ResumeDocument.objects.get(user=user)
+        except ResumeDocument.DoesNotExist:
+            return JsonResponse({"error": "Resume not found for the user"}, status=404)
+
+        # Create a blank employment entry linked to the resume
+        employment = Employment.objects.create(
+            user=user, company="", role="", hired=None, resigned=None, resume=resume
+        )
+
+        return JsonResponse({
+            "message": "New employment record created",
+            "id": employment.id,
+            "company": employment.company,
+            "position": employment.role,
+            "hired": None,
+            "resigned": None,
+            "resume": resume.id  # Include resume ID in response
+        })
+
+    return JsonResponse({"error": "Invalid request"}, status=400)
+
+@csrf_exempt
+@login_required
+def update_employment(request, employment_id):
+    if request.method == "POST":
+        user = request.user
+        try:
+            employment = Employment.objects.get(id=employment_id, user=user)
+            field = request.POST.get("field")
+            value = request.POST.get("value")
+
+            if field and value is not None:
+                setattr(employment, field, value)  # Dynamically update the field
+                employment.save()
+                return JsonResponse({"message": f"{field} updated successfully", "value": value})
+
+            return JsonResponse({"error": "Invalid field or value"}, status=400)
+
+        except Employment.DoesNotExist:
+            return JsonResponse({"error": "Employment entry not found"}, status=404)
+
+    return JsonResponse({"error": "Invalid request"}, status=400)
+
+@csrf_exempt
+@login_required
+def delete_employment(request, employment_id):
     if request.method == "POST":
         try:
-            employment = Employment.objects.get(id=id)
+            employment = Employment.objects.get(id=employment_id, user=request.user)
             employment.delete()
-            return JsonResponse({"success": True})
-        except Education.DoesNotExist:
-            return JsonResponse({"success": False, "error": "Employment not found."})
-    return JsonResponse({"success": False, "error": "Invalid request method."})
+            return JsonResponse({"message": "Employment entry deleted successfully"})
+        except Employment.DoesNotExist:
+            return JsonResponse({"error": "Employment entry not found"}, status=404)
+
+    return JsonResponse({"error": "Invalid request"}, status=400)
+
 
 @login_required
 def delete_profile(request):

@@ -1,0 +1,113 @@
+{% extends 'pesostaff/layouts/base.html' %} {% block content %} {% load static %}
+<style>
+    canvas {
+        margin-top: 30px;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+        font-size: 18px;
+        text-align: left;
+        background: white;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    th, td {
+        padding: 12px;
+        border: 1px solid #ddd;
+    }
+    th {
+        background: #4CAF50;
+        color: white;
+    }
+    tr:nth-child(even) {
+        background: #f2f2f2;
+    }
+</style>
+
+    <main class="main" id="main">
+
+        <div class="pagetitle">
+          <h1>Location Reports</h1>
+            <nav>
+            <ol class="breadcrumb">
+              <li class="breadcrumb-item active">Here you can manage accreditation requests, view job postings, and handle other administrative tasks.</li>
+            </ol>
+            </nav>
+        </div><!-- End Page Title -->
+
+        <section class="section dashboard">
+            <div class="row">
+
+                <div class="col-12">
+                    <div class="card">
+
+                        <div class="card-body">
+                            <h5 class="card-title">Job Location Reports</h5>
+                            <table class="table datatable">
+                                <thead>
+                                    <tr>
+                                        <th>Location</th>
+                                        <th>Number of Job Postings</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for entry in location_data %}
+                                    <tr>
+                                        <td>{{ entry.location }}</td>
+                                        <td>{{ entry.count }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                            <canvas id="jobLocationChart"></canvas>
+                            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+                            <script>
+                                var ctx = document.getElementById('jobLocationChart').getContext('2d');
+                                var jobLocationChart = new Chart(ctx, {
+                                    type: 'bar',
+                                    data: {
+                                        labels: [{% for entry in location_data %}"{{ entry.location }}",{% endfor %}],
+                                        datasets: [{
+                                            label: 'Number of Job Postings',
+                                            data: [{% for entry in location_data %}{{ entry.count }},{% endfor %}],
+                                            backgroundColor: [
+                                                'rgba(255, 99, 132, 0.6)',
+                                                'rgba(54, 162, 235, 0.6)',
+                                                'rgba(255, 206, 86, 0.6)',
+                                                'rgba(75, 192, 192, 0.6)',
+                                                'rgba(153, 102, 255, 0.6)',
+                                                'rgba(255, 159, 64, 0.6)'
+                                            ],
+                                            borderColor: 'rgba(0, 0, 0, 0.1)',
+                                            borderWidth: 1
+                                        }]
+                                    },
+                                    options: {
+                                        responsive: true,
+                                        plugins: {
+                                            legend: {
+                                                display: false
+                                            }
+                                        },
+                                        scales: {
+                                            y: {
+                                                beginAtZero: true,
+                                                ticks: {
+                                                    stepSize: 1
+                                                }
+                                            }
+                                        }
+                                    }
+                                });
+                            </script>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+{% endblock %}

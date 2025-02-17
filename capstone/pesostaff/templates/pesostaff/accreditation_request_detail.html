@@ -1,785 +1,5 @@
-{#<!DOCTYPE html>#}
-{#<html lang="en">#}
-{#<head>#}
-{#    <meta charset="UTF-8">#}
-{#    <meta name="viewport" content="width=device-width, initial-scale=1.0">#}
-{#    <title>Accreditation Request Details</title>#}
-{#</head>#}
-{#<body>#}
-{#    <h1>Accreditation Request Details</h1>#}
-{#    <p><strong>Company Name:</strong> {{ accreditation_request.company }}</p>#}
-{#    <p><strong>Company Type:</strong> {{ accreditation_request.company_type }}</p>#}
-{#    <p><strong>Status:</strong> {{ accreditation_request.status }}</p>#}
-{#    <p><strong>Request Date:</strong> {{ accreditation_request.request_date }}</p>#}
-{##}
-{#    <h2>Uploaded Documents</h2>#}
-{#    {% if accreditation_request.sec_registration %}#}
-{#        <p><a href="{{ accreditation_request.sec_registration.url }}">SEC Registration</a></p>#}
-{#    {% endif %}#}
-{#    {% if accreditation_request.dti_permit %}#}
-{#        <p><a href="{{ accreditation_request.dti_permit.url }}">DTI Permit</a></p>#}
-{#    {% endif %}#}
-{#    <!-- Add similar checks for other document fields -->#}
-{##}
-{#    <form method="post">#}
-{#        {% csrf_token %}#}
-{#        <textarea name="comments" placeholder="Enter comments">{{ accreditation_request.comments }}</textarea><br>#}
-{#        <select name="status">#}
-{#            <option value="Approved">Approve</option>#}
-{#            <option value="Rejected">Reject</option>#}
-{#        </select><br>#}
-{#        <button type="submit">Submit</button>#}
-{#    </form>#}
-{#</body>#}
-{#</html>#}
-
-{#<!DOCTYPE html>#}
-{#<html lang="en">#}
-{#<head>#}
-{#    <meta charset="UTF-8">#}
-{#    <meta name="viewport" content="width=device-width, initial-scale=1.0">#}
-{#    <title>Accreditation Request Detail</title>#}
-{#    <style>#}
-{#        .document-section {#}
-{#            margin-bottom: 20px;#}
-{#        }#}
-{#        .document-section a {#}
-{#            display: block;#}
-{#            margin-bottom: 10px;#}
-{#        }#}
-{#    </style>#}
-{#</head>#}
-{#<body>#}
-{#    <div class="container">#}
-{#        <header>#}
-{#            <h1>Accreditation Request Detail</h1>#}
-{#            <a href="{% url 'pesostaff:requests_view' %}">Back to Requests</a>#}
-{#        </header>#}
-{##}
-{#        <div class="request-details">#}
-{#            <h2>Company Details</h2>#}
-{#            <p><strong>Company:</strong> {{ accreditation_request.company }}</p>#}
-{#            <p><strong>Company Type:</strong> {{ accreditation_request.company_type }}</p>#}
-{#            <p><strong>Request Date:</strong> {{ accreditation_request.request_date }}</p>#}
-{#            <p><strong>Status:</strong> {{ accreditation_request.status }}</p>#}
-{#            <p><strong>Comments:</strong> {{ accreditation_request.comments }}</p>#}
-{#        </div>#}
-{##}
-{#        <div class="document-sections">#}
-{#            <h2>Uploaded Documents</h2>#}
-{#            {% if accreditation_request.sec_registration %}#}
-{#                <div class="document-section">#}
-{#                    <h3>SEC Registration</h3>#}
-{#                    <a href="{{ accreditation_request.sec_registration.url }}" target="_blank">View Document</a>#}
-{#                </div>#}
-{#            {% endif %}#}
-{#            {% if accreditation_request.dti_permit %}#}
-{#                <div class="document-section">#}
-{#                    <h3>DTI Permit</h3>#}
-{#                    <a href="{{ accreditation_request.dti_permit.url }}" target="_blank">View Document</a>#}
-{#                </div>#}
-{#            {% endif %}#}
-{#            {% if accreditation_request.business_permit %}#}
-{#                <div class="document-section">#}
-{#                    <h3>Business Permit</h3>#}
-{#                    <a href="{{ accreditation_request.business_permit.url }}" target="_blank">View Document</a>#}
-{#                </div>#}
-{#            {% endif %}#}
-{#            {% if accreditation_request.latest_job_posting %}#}
-{#                <div class="document-section">#}
-{#                    <h3>Latest Job Posting</h3>#}
-{#                    <a href="{{ accreditation_request.latest_job_posting.url }}" target="_blank">View Document</a>#}
-{#                </div>#}
-{#            {% endif %}#}
-{#            {% if accreditation_request.latest_job_order_with_qualifications %}#}
-{#                <div class="document-section">#}
-{#                    <h3>Latest Job Order with Qualifications</h3>#}
-{#                    <a href="{{ accreditation_request.latest_job_order_with_qualifications.url }}" target="_blank">View Document</a>#}
-{#                </div>#}
-{#            {% endif %}#}
-{#            {% if accreditation_request.latest_payment_receipt %}#}
-{#                <div class="document-section">#}
-{#                    <h3>Latest Payment Receipt</h3>#}
-{#                    <a href="{{ accreditation_request.latest_payment_receipt.url }}" target="_blank">View Document</a>#}
-{#                </div>#}
-{#            {% endif %}#}
-{#            {% if accreditation_request.no_pending_case_certificate %}#}
-{#                <div class="document-section">#}
-{#                    <h3>No Pending Case Certificate</h3>#}
-{#                    <a href="{{ accreditation_request.no_pending_case_certificate.url }}" target="_blank">View Document</a>#}
-{#                </div>#}
-{#            {% endif %}#}
-{#            {% if accreditation_request.dole_permit %}#}
-{#                <div class="document-section">#}
-{#                    <h3>DOLE Permit</h3>#}
-{#                    <a href="{{ accreditation_request.dole_permit.url }}" target="_blank">View Document</a>#}
-{#                </div>#}
-{#            {% endif %}#}
-{#            {% if accreditation_request.bir_registration %}#}
-{#                <div class="document-section">#}
-{#                    <h3>BIR Registration</h3>#}
-{#                    <a href="{{ accreditation_request.bir_registration.url }}" target="_blank">View Document</a>#}
-{#                </div>#}
-{#            {% endif %}#}
-{#            {% if accreditation_request.sss_membership_registration %}#}
-{#                <div class="document-section">#}
-{#                    <h3>SSS Membership Registration</h3>#}
-{#                    <a href="{{ accreditation_request.sss_membership_registration.url }}" target="_blank">View Document</a>#}
-{#                </div>#}
-{#            {% endif %}#}
-{#            {% if accreditation_request.tied_companies_list %}#}
-{#                <div class="document-section">#}
-{#                    <h3>Tied Companies List</h3>#}
-{#                    <a href="{{ accreditation_request.tied_companies_list.url }}" target="_blank">View Document</a>#}
-{#                </div>#}
-{#            {% endif %}#}
-{#            {% if accreditation_request.phil_job_net_registration %}#}
-{#                <div class="document-section">#}
-{#                    <h3>Phil Job Net Registration</h3>#}
-{#                    <a href="{{ accreditation_request.phil_job_net_registration.url }}" target="_blank">View Document</a>#}
-{#                </div>#}
-{#            {% endif %}#}
-{#            {% if accreditation_request.poea_permit %}#}
-{#                <div class="document-section">#}
-{#                    <h3>POEA Permit</h3>#}
-{#                    <a href="{{ accreditation_request.poea_permit.url }}" target="_blank">View Document</a>#}
-{#                </div>#}
-{#            {% endif %}#}
-{#        </div>#}
-{#    </div>#}
-{#</body>#}
-{#</html>#}
-
-
-{#<!DOCTYPE html>#}
-{#<html lang="en">#}
-{#<head>#}
-{#    <meta charset="UTF-8">#}
-{#    <meta name="viewport" content="width=device-width, initial-scale=1.0">#}
-{#    <title>Accreditation Request Details</title>#}
-{#    <style>#}
-{#        body {#}
-{#            font-family: Arial, sans-serif;#}
-{#            background-color: #f4f4f4;#}
-{#            margin: 0;#}
-{#            padding: 0;#}
-{#        }#}
-{##}
-{#        .container {#}
-{#            width: 80%;#}
-{#            margin: 0 auto;#}
-{#            padding: 20px;#}
-{#            background: #fff;#}
-{#            border-radius: 8px;#}
-{#            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);#}
-{#        }#}
-{##}
-{#        header {#}
-{#            margin-bottom: 20px;#}
-{#        }#}
-{##}
-{#        h1 {#}
-{#            color: #333;#}
-{#            border-bottom: 2px solid #007bff;#}
-{#            padding-bottom: 10px;#}
-{#        }#}
-{##}
-{#        h2 {#}
-{#            color: #007bff;#}
-{#            border-bottom: 1px solid #ddd;#}
-{#            padding-bottom: 5px;#}
-{#            margin-top: 20px;#}
-{#            margin-bottom: 10px;#}
-{#        }#}
-{##}
-{#        p {#}
-{#            font-size: 16px;#}
-{#            color: #333;#}
-{#            margin: 10px 0;#}
-{#        }#}
-{##}
-{#        strong {#}
-{#            color: #007bff;#}
-{#        }#}
-{##}
-{#        a {#}
-{#            display: inline-block;#}
-{#            margin-top: 20px;#}
-{#            padding: 10px 15px;#}
-{#            text-decoration: none;#}
-{#            color: #fff;#}
-{#            background-color: #007bff;#}
-{#            border-radius: 5px;#}
-{#            transition: background-color 0.3s ease;#}
-{#        }#}
-{##}
-{#        a:hover {#}
-{#            background-color: #0056b3;#}
-{#        }#}
-{##}
-{#        .status-pending {#}
-{#            color: orange;#}
-{#        }#}
-{##}
-{#        .status-approved {#}
-{#            color: green;#}
-{#        }#}
-{##}
-{#        .status-rejected {#}
-{#            color: red;#}
-{#        }#}
-{##}
-{#        .details-container {#}
-{#            margin-top: 20px;#}
-{#        }#}
-{##}
-{#        .details-container p {#}
-{#            margin-bottom: 5px;#}
-{#        }#}
-{#    </style>#}
-{#</head>#}
-{#<body>#}
-{#    <div class="container">#}
-{#        <header>#}
-{#            <h1>Accreditation Request Details</h1>#}
-{#        </header>#}
-{##}
-{#        <div class="details-container">#}
-{#            <h2>Company Details</h2>#}
-{#            <p><strong>Company:</strong> {{ request.company }}</p>#}
-{#            <p><strong>Company Type:</strong> {{ request.company_type }}</p>#}
-{#            <p><strong>Request Date:</strong> {{ request.request_date }}</p>#}
-{#            <p><strong>Status:</strong> {{ request.status }}</p>#}
-{##}
-{#            {% if approval %}#}
-{#                <h2>Approval Details</h2>#}
-{#                <p><strong>Approved:</strong> {{ approval.approved|yesno:"Yes,No" }}</p>#}
-{#                <p><strong>Comments:</strong> {{ approval.comments }}</p>#}
-{#                <p><strong>Approved Date:</strong> {{ approval.approved_date }}</p>#}
-{#            {% else %}#}
-{#                <p>No approval details available.</p>#}
-{#            {% endif %}#}
-{#        </div>#}
-{##}
-{#        <a href="{% url 'pesostaff:requests_view' %}">Back to Requests</a>#}
-{#    </div>#}
-{#</body>#}
-{#</html>#}
-
-{#<!DOCTYPE html>#}
-{#<html lang="en">#}
-{#<head>#}
-{#    <meta charset="UTF-8">#}
-{#    <meta name="viewport" content="width=device-width, initial-scale=1.0">#}
-{#    <title>Accreditation Request Details</title>#}
-{#    <style>#}
-{#        body {#}
-{#            font-family: Arial, sans-serif;#}
-{#            line-height: 1.6;#}
-{#            margin: 0;#}
-{#            padding: 0;#}
-{#            background-color: #f4f4f4;#}
-{#        }#}
-{##}
-{#        .container {#}
-{#            max-width: 800px;#}
-{#            margin: 20px auto;#}
-{#            padding: 20px;#}
-{#            background: #fff;#}
-{#            border-radius: 8px;#}
-{#            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);#}
-{#        }#}
-{##}
-{#        header {#}
-{#            border-bottom: 2px solid #007bff;#}
-{#            padding-bottom: 10px;#}
-{#            margin-bottom: 20px;#}
-{#        }#}
-{##}
-{#        h1 {#}
-{#            margin: 0;#}
-{#            color: #007bff;#}
-{#        }#}
-{##}
-{#        h2 {#}
-{#            color: #333;#}
-{#            border-bottom: 1px solid #ddd;#}
-{#            padding-bottom: 5px;#}
-{#            margin-bottom: 15px;#}
-{#        }#}
-{##}
-{#        p {#}
-{#            margin: 10px 0;#}
-{#        }#}
-{##}
-{#        strong {#}
-{#            color: #333;#}
-{#        }#}
-{##}
-{#        .document-list {#}
-{#            list-style: none;#}
-{#            padding: 0;#}
-{#        }#}
-{##}
-{#        .document-list li {#}
-{#            margin-bottom: 10px;#}
-{#            padding: 10px;#}
-{#            border: 1px solid #ddd;#}
-{#            border-radius: 4px;#}
-{#            background: #f9f9f9;#}
-{#        }#}
-{##}
-{#        .document-list a {#}
-{#            color: #007bff;#}
-{#            text-decoration: none;#}
-{#        }#}
-{##}
-{#        .document-list a:hover {#}
-{#            text-decoration: underline;#}
-{#        }#}
-{##}
-{#        a.back-link {#}
-{#            display: inline-block;#}
-{#            margin-top: 20px;#}
-{#            padding: 10px 15px;#}
-{#            background: #007bff;#}
-{#            color: #fff;#}
-{#            text-decoration: none;#}
-{#            border-radius: 4px;#}
-{#            font-weight: bold;#}
-{#            text-align: center;#}
-{#        }#}
-{##}
-{#        a.back-link:hover {#}
-{#            background: #0056b3;#}
-{#        }#}
-{#    </style>#}
-{#</head>#}
-{#<body>#}
-{#    <div class="container">#}
-{#        <header>#}
-{#            <h1>Accreditation Request Details</h1>#}
-{#        </header>#}
-{##}
-{#        <h2>Company Details</h2>#}
-{#        <p><strong>Company:</strong> {{ request.company }}</p>#}
-{#        <p><strong>Company Type:</strong> {{ request.company_type }}</p>#}
-{#        <p><strong>Request Date:</strong> {{ request.request_date }}</p>#}
-{#        <p><strong>Status:</strong> {{ request.status }}</p>#}
-{##}
-{#        <h2>Uploaded Documents</h2>#}
-{#        <ul class="document-list">#}
-{#            {% for label, document in documents.items %}#}
-{#                <li>#}
-{#                    <strong>{{ label }}:</strong>#}
-{#                    {% if document %}#}
-{#                        <a href="{{ document.url }}" target="_blank">View Document</a>#}
-{#                    {% else %}#}
-{#                        No document uploaded.#}
-{#                    {% endif %}#}
-{#                </li>#}
-{#            {% endfor %}#}
-{#        </ul>#}
-{##}
-{#        {% if approval %}#}
-{#            <h2>Approval Details</h2>#}
-{#            <p><strong>Approved:</strong> {{ approval.approved|yesno:"Yes,No" }}</p>#}
-{#            <p><strong>Comments:</strong> {{ approval.comments }}</p>#}
-{#            <p><strong>Approved Date:</strong> {{ approval.approved_date }}</p>#}
-{#            {% if approval.uploaded_document %}#}
-{#                <p><strong>Approval Document:</strong> <a href="{{ approval.uploaded_document.url }}" target="_blank">View Document</a></p>#}
-{#            {% else %}#}
-{#                <p>No approval document uploaded.</p>#}
-{#            {% endif %}#}
-{#        {% else %}#}
-{#            <p>No approval details available.</p>#}
-{#        {% endif %}#}
-{##}
-{#        <a href="{% url 'pesostaff:requests_view' %}" class="back-link">Back to Requests</a>#}
-{#    </div>#}
-{#</body>#}
-{#</html>#}
-
-
-{#<!DOCTYPE html>#}
-{#<html lang="en">#}
-{#<head>#}
-{#    <meta charset="UTF-8">#}
-{#    <meta name="viewport" content="width=device-width, initial-scale=1.0">#}
-{#    <title>Accreditation Request Details</title>#}
-{#    <style>#}
-{#        body {#}
-{#            font-family: Arial, sans-serif;#}
-{#            background-color: #f4f4f4;#}
-{#            margin: 0;#}
-{#            padding: 0;#}
-{#        }#}
-{##}
-{#        .container {#}
-{#            width: 80%;#}
-{#            margin: 0 auto;#}
-{#            padding: 20px;#}
-{#            background: #fff;#}
-{#            border-radius: 8px;#}
-{#            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);#}
-{#        }#}
-{##}
-{#        header {#}
-{#            margin-bottom: 20px;#}
-{#        }#}
-{##}
-{#        h1 {#}
-{#            color: #333;#}
-{#            border-bottom: 2px solid #007bff;#}
-{#            padding-bottom: 10px;#}
-{#        }#}
-{##}
-{#        h2 {#}
-{#            color: #007bff;#}
-{#            border-bottom: 1px solid #ddd;#}
-{#            padding-bottom: 5px;#}
-{#            margin-top: 20px;#}
-{#            margin-bottom: 10px;#}
-{#        }#}
-{##}
-{#        p {#}
-{#            font-size: 16px;#}
-{#            color: #333;#}
-{#            margin: 10px 0;#}
-{#        }#}
-{##}
-{#        strong {#}
-{#            color: #007bff;#}
-{#        }#}
-{##}
-{#        a {#}
-{#            display: inline-block;#}
-{#            margin-top: 20px;#}
-{#            padding: 10px 15px;#}
-{#            text-decoration: none;#}
-{#            color: #fff;#}
-{#            background-color: #007bff;#}
-{#            border-radius: 5px;#}
-{#            transition: background-color 0.3s ease;#}
-{#        }#}
-{##}
-{#        a:hover {#}
-{#            background-color: #0056b3;#}
-{#        }#}
-{##}
-{#        .status-pending {#}
-{#            color: orange;#}
-{#        }#}
-{##}
-{#        .status-approved {#}
-{#            color: green;#}
-{#        }#}
-{##}
-{#        .status-rejected {#}
-{#            color: red;#}
-{#        }#}
-{##}
-{#        .details-container {#}
-{#            margin-top: 20px;#}
-{#        }#}
-{##}
-{#        .details-container p {#}
-{#            margin-bottom: 5px;#}
-{#        }#}
-{##}
-{#        form {#}
-{#            margin-top: 20px;#}
-{#        }#}
-{##}
-{#        textarea {#}
-{#            width: 100%;#}
-{#            height: 100px;#}
-{#            padding: 10px;#}
-{#            font-size: 16px;#}
-{#            border: 1px solid #ddd;#}
-{#            border-radius: 4px;#}
-{#            resize: vertical;#}
-{#            margin-top: 10px;#}
-{#            margin-bottom: 10px;#}
-{#        }#}
-{##}
-{#        button {#}
-{#            background-color: #007bff;#}
-{#            color: white;#}
-{#            border: none;#}
-{#            padding: 10px 15px;#}
-{#            border-radius: 5px;#}
-{#            cursor: pointer;#}
-{#            font-size: 16px;#}
-{#            transition: background-color 0.3s ease;#}
-{#        }#}
-{##}
-{#        button:hover {#}
-{#            background-color: #0056b3;#}
-{#        }#}
-{#    </style>#}
-{#</head>#}
-{#<body>#}
-{#    <div class="container">#}
-{#        <header>#}
-{#            <h1>Accreditation Request Details</h1>#}
-{#        </header>#}
-{##}
-{#        <div class="details-container">#}
-{#            <h2>Company Details</h2>#}
-{#            <p><strong>Company:</strong> {{ request.company }}</p>#}
-{#            <p><strong>Company Type:</strong> {{ request.company_type }}</p>#}
-{#            <p><strong>Request Date:</strong> {{ request.request_date }}</p>#}
-{#            <p><strong>Status:</strong> {{ request.status }}</p>#}
-{##}
-{#            {% if approval %}#}
-{#                <h2>Approval Details</h2>#}
-{#                <p><strong>Approved:</strong> {{ approval.approved|yesno:"Yes,No" }}</p>#}
-{#                <p><strong>Comments:</strong> {{ approval.comments }}</p>#}
-{#                <p><strong>Approved Date:</strong> {{ approval.approved_date }}</p>#}
-{#            {% else %}#}
-{#                <p>No approval details available.</p>#}
-{#            {% endif %}#}
-{#        </div>#}
-{##}
-{#        <!-- Form to add comments or feedback -->#}
-{#        <form action="{% url 'pesostaff:approve_request' request.id %}" method="POST">#}
-{#            {% csrf_token %}#}
-{#            <h2>Add Comments</h2>#}
-{#            <textarea name="comments" placeholder="Enter your comments here..."></textarea>#}
-{#            <button type="submit">Submit Comments</button>#}
-{#        </form>#}
-{##}
-{#        <a href="{% url 'pesostaff:requests_view' %}">Back to Requests</a>#}
-{#    </div>#}
-{#</body>#}
-{#</html>#}
-
-
-{#<!DOCTYPE html>#}
-{#<html lang="en">#}
-{#<head>#}
-{#    <meta charset="UTF-8">#}
-{#    <meta name="viewport" content="width=device-width, initial-scale=1.0">#}
-{#    <title>Accreditation Request Details</title>#}
-{#</head>#}
-{#<body>#}
-{#    <h1>Accreditation Request Details for {{ request.company }}</h1>#}
-{##}
-{#    <h2>Request Information</h2>#}
-{#    <p><strong>Company Name:</strong> {{ request.company }}</p>#}
-{#    <p><strong>Company Type:</strong> {{ request.company_type }}</p>#}
-{#    <p><strong>Request Date:</strong> {{ request.request_date }}</p>#}
-{#    <p><strong>Status:</strong> {{ request.status }}</p>#}
-{##}
-{#    <h2>Uploaded Documents</h2>#}
-{#    {% if documents %}#}
-{#        <ul>#}
-{#            {% for label, document in documents.items %}#}
-{#                <li>#}
-{#                    <strong>{{ label }}:</strong>#}
-{#                    <a href="{{ document.url }}" target="_blank">View Document</a>#}
-{#                </li>#}
-{#            {% endfor %}#}
-{#        </ul>#}
-{#    {% else %}#}
-{#        <p>No documents uploaded.</p>#}
-{#    {% endif %}#}
-{##}
-{#    <h2>Approval Information</h2>#}
-{#    {% if approval %}#}
-{#        <p><strong>Approval Status:</strong> {{ approval.approved|yesno:"Approved,Rejected" }}</p>#}
-{#        <p><strong>Comments:</strong> {{ approval.comments }}</p>#}
-{#    {% else %}#}
-{#        <p>This request has not been reviewed yet.</p>#}
-{#    {% endif %}#}
-{##}
-{#    <h2>Actions</h2>#}
-{#    <form method="POST">#}
-{#        {% csrf_token %}#}
-{#        <textarea name="comments" placeholder="Add comments..."></textarea>#}
-{#        <br>#}
-{#        <button type="submit" name="approve">Approve</button>#}
-{#        <button type="submit" name="reject">Reject</button>#}
-{#    </form>#}
-{##}
-{#    <a href="{% url 'pesostaff:requests_view' %}">Back to Requests List</a>#}
-{#</body>#}
-{#</html>#}
-
-
-{#<!DOCTYPE html>#}
-{#<html lang="en">#}
-{#<head>#}
-{#    <meta charset="UTF-8">#}
-{#    <meta name="viewport" content="width=device-width, initial-scale=1.0">#}
-{#    <title>Accreditation Request Details</title>#}
-{#    <style>#}
-{#        body {#}
-{#            font-family: Arial, sans-serif;#}
-{#            background-color: #f4f4f4;#}
-{#            margin: 0;#}
-{#            padding: 0;#}
-{#        }#}
-{#        .container {#}
-{#            width: 80%;#}
-{#            margin: 0 auto;#}
-{#            padding: 20px;#}
-{#            background: #fff;#}
-{#            border-radius: 8px;#}
-{#            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);#}
-{#        }#}
-{#        h1, h2 {#}
-{#            color: #333;#}
-{#            border-bottom: 2px solid #007bff;#}
-{#            padding-bottom: 10px;#}
-{#        }#}
-{#        h2 {#}
-{#            border-bottom: 1px solid #ddd;#}
-{#            margin-top: 20px;#}
-{#        }#}
-{#        p {#}
-{#            font-size: 16px;#}
-{#            color: #333;#}
-{#            margin: 10px 0;#}
-{#        }#}
-{#        strong {#}
-{#            color: #007bff;#}
-{#        }#}
-{#        .status-pending {#}
-{#            color: orange;#}
-{#        }#}
-{#        .status-approved {#}
-{#            color: green;#}
-{#        }#}
-{#        .status-rejected {#}
-{#            color: red;#}
-{#        }#}
-{#        .actions-form {#}
-{#            margin-top: 20px;#}
-{#        }#}
-{#        textarea {#}
-{#            width: 100%;#}
-{#            height: 100px;#}
-{#            padding: 10px;#}
-{#            font-size: 16px;#}
-{#            border: 1px solid #ddd;#}
-{#            border-radius: 4px;#}
-{#            resize: vertical;#}
-{#            margin-top: 10px;#}
-{#            margin-bottom: 10px;#}
-{#        }#}
-{#        button {#}
-{#            background-color: #007bff;#}
-{#            color: white;#}
-{#            border: none;#}
-{#            padding: 10px 15px;#}
-{#            border-radius: 5px;#}
-{#            cursor: pointer;#}
-{#            font-size: 16px;#}
-{#            transition: background-color 0.3s ease;#}
-{#        }#}
-{#        button:hover {#}
-{#            background-color: #0056b3;#}
-{#        }#}
-{#        a {#}
-{#            display: inline-block;#}
-{#            margin-top: 20px;#}
-{#            padding: 10px 15px;#}
-{#            text-decoration: none;#}
-{#            color: #fff;#}
-{#            background-color: #007bff;#}
-{#            border-radius: 5px;#}
-{#            transition: background-color 0.3s ease;#}
-{#        }#}
-{#        a:hover {#}
-{#            background-color: #0056b3;#}
-{#        }#}
-{#    </style>#}
-{#</head>#}
-{#<body>#}
-{#    <div class="container">#}
-{#        <h1>Accreditation Request Details for {{ request.company }}</h1>#}
-{##}
-{#        <h2>Request Information</h2>#}
-{#        <p><strong>Company Name:</strong> {{ request.company }}</p>#}
-{#        <p><strong>Company Type:</strong> {{ request.company_type }}</p>#}
-{#        <p><strong>Request Date:</strong> {{ request.request_date }}</p>#}
-{#        <p><strong>Status:</strong>#}
-{#            <span class="status-{% if request.status == 'Pending' %}pending{% elif request.status == 'Approved' %}approved{% elif request.status == 'Rejected' %}rejected{% endif %}">#}
-{#                {{ request.status }}#}
-{#            </span>#}
-{#        </p>#}
-{##}
-{#        <h2>Uploaded Documents</h2>#}
-{#        {% if documents %}#}
-{#            <ul>#}
-{#                {% for label, document in documents.items %}#}
-{#                    <li>#}
-{#                        <strong>{{ label }}:</strong>#}
-{#                        <a href="{{ document.url }}" target="_blank">View Document</a>#}
-{#                    </li>#}
-{#                {% endfor %}#}
-{#            </ul>#}
-{#        {% else %}#}
-{#            <p>No documents uploaded.</p>#}
-{#        {% endif %}#}
-{##}
-{#        <h2>Approval Information</h2>#}
-{#        {% if approval %}#}
-{#            <p><strong>Approval Status:</strong> {{ approval.approved|yesno:"Approved,Rejected" }}</p>#}
-{#            <p><strong>Comments:</strong> {{ approval.comments }}</p>#}
-{#        {% else %}#}
-{#            <p>This request has not been reviewed yet.</p>#}
-{#        {% endif %}#}
-{##}
-{#        <h2>Actions</h2>#}
-{#        <div class="actions-form">#}
-{#            <form method="POST">#}
-{#                {% csrf_token %}#}
-{#                <textarea name="comments" placeholder="Add comments..."></textarea>#}
-{#                <br>#}
-{#                <button type="submit" name="approve">Approve</button>#}
-{#                <button type="submit" name="reject">Reject</button>#}
-{#            </form>#}
-{#        </div>#}
-{##}
-{#        <a href="{% url 'pesostaff:requests_view' %}">Back to Requests List</a>#}
-{#    </div>#}
-{#</body>#}
-{#</html>#}
-
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Accreditation Request Details</title>
+{% extends 'pesostaff/layouts/base.html' %} {% block content %} {% load static %}
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 0;
-        }
-        .container {
-            width: 80%;
-            margin: 0 auto;
-            padding: 20px;
-            background: #fff;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-        h1, h2 {
-            color: #333;
-            border-bottom: 2px solid #007bff;
-            padding-bottom: 10px;
-        }
-        h2 {
-            border-bottom: 1px solid #ddd;
-            margin-top: 20px;
-        }
         p {
             font-size: 16px;
             color: #333;
@@ -788,117 +8,95 @@
         strong {
             color: #007bff;
         }
-        .status-pending {
-            color: orange;
-        }
-        .status-approved {
-            color: green;
-        }
-        .status-rejected {
-            color: red;
-        }
-        .actions-form {
-            margin-top: 20px;
+        form {
+            max-width: 500px;
         }
         textarea {
             width: 100%;
             height: 100px;
             padding: 10px;
-            font-size: 16px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            resize: vertical;
-            margin-top: 10px;
-            margin-bottom: 10px;
-        }
-        button {
-            background-color: #007bff;
-            color: white;
-            border: none;
-            padding: 10px 15px;
+            border: 1px solid #ccc;
             border-radius: 5px;
-            cursor: pointer;
             font-size: 16px;
-            transition: background-color 0.3s ease;
+            resize: none;
+            outline: none;
         }
-        button:hover {
-            background-color: #0056b3;
-        }
-        a {
-            display: inline-block;
-            margin-top: 20px;
-            padding: 10px 15px;
-            text-decoration: none;
-            color: #fff;
-            background-color: #007bff;
-            border-radius: 5px;
-            transition: background-color 0.3s ease;
-        }
-        a:hover {
-            background-color: #0056b3;
+
+        textarea:focus {
+            border-color: #28a745;
+            box-shadow: 0 0 5px rgba(40, 167, 69, 0.5);
         }
     </style>
-</head>
-<body>
-    <div class="container">
-        <h1>Accreditation Request Details for {{ request.company }}</h1>
+<main class="main" id="main">
+    <div class="pagetitle">
+      <h1>Accreditation Request Overview</h1>
+        <nav>
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item active">Here you can manage accreditation requests, view job postings, and handle other administrative tasks.</li>
+        </ol>
+        </nav>
+    </div><!-- End Page Title -->
 
-        <h2>Company Information</h2>
-        <p><strong>Company Name:</strong> {{ request.company }}</p>
-        <p><strong>Company Type:</strong> {{ request.company_type }}</p>
-        <p><strong>Request Date:</strong> {{ request.request_date }}</p>
-        <p><strong>Status:</strong>
-            <span class="status-{% if request.status == 'Pending' %}pending{% elif request.status == 'Approved' %}approved{% elif request.status == 'Rejected' %}rejected{% endif %}">
-                {{ request.status }}
-            </span>
-        </p>
-{#        <h2>Uploaded Documents</h2>#}
-{#            {% if documents %}#}
-{#                {% for label, document in documents.items %}#}
-{#                    {% if document %}#}
-{#                        <p><a href="{{ document.url }}" target="_blank">View {{ label }}</a></p>#}
-{#                    {% else %}#}
-{#                        <p>No documents uploaded.</p>#}
-{#                    {% endif %}#}
-{#                {% endfor %}#}
-{#            {% else %}#}
-{#                <p>No documents uploaded.</p>#}
-{#            {% endif %}#}
-        <h2>Required Documents</h2>
-        {% if documents %}
-            {% for label, document in documents.items %}
-                {% if document %}
-                        <strong>{{ label }}:</strong>
-                        <a href="{{ document.url }}" target="_blank">View Document</a>
-                {% else %}
-                    <p>No documents uploaded.</p>
-                {% endif %}
-            {% endfor %}
-        {% else %}
-            <p>No documents uploaded.</p>
-        {% endif %}
+    <section class="section dashboard">
+        <div class="row">
 
-        <h2>Approval Information</h2>
-        {% if approval %}
-{#            <p><strong>Approval Status:</strong> {{ approval.approved|yesno:"Approved,Rejected" }}</p>#}
-            <p><strong>Remarks:</strong> {{ approval.comments }}</p>
-        {% else %}
-            <p>This request has not been reviewed yet.</p>
-        {% endif %}
+            <div class="col--12">
+                <div class="card">
 
-        <h2>Actions</h2>
-        <div class="actions-form">
-            <form method="POST" action="{% url 'pesostaff:accreditation_request_detail' id=request.id %}">
-                {% csrf_token %}
-                <textarea name="comments" placeholder="Add comments..."></textarea>
-                <br>
-                <button type="submit" name="approve" value="approve">Approve</button>
-                <button type="submit" name="reject" value="reject">Reject</button>
-            </form>
+                    <div class="card-body">
+                        <h5 class="card-title">Accreditation Request Details for {{ request.company }}</h5>
+                        <hr>
+                        <h5 class="card-title">Company Information:</h5>
+                        <p class="card-body"><strong class="card-title">Company Name:</strong> {{ request.company }}</p>
+                        <p class="card-body"><strong class="card-title">Company Type:</strong> {{ request.company_type }}</p>
+                        <p class="card-body"><strong class="card-title">Request Date:</strong> {{ request.request_date }}</p>
+                        <p class="card-body"><strong class="card-title">Status:</strong>
+                            <span class="status-{% if request.status == 'Pending' %}pending{% elif request.status == 'Approved' %}approved{% elif request.status == 'Rejected' %}rejected{% endif %}">
+                                {{ request.status }}
+                            </span>
+                        </p>
+                        <h3 class="card-title">Required Documents:</h3>
+                        {% if documents %}
+                            {% for label, document in documents.items %}
+                                {% if document %}
+                                        <strong class="card-title card-body">{{ label }}:</strong>
+                                        <a class="card-body" href="{{ document.url }}" target="_blank">View Document</a>
+                                {% else %}
+                                    <p>No documents uploaded.</p>
+                                {% endif %}
+                            {% endfor %}
+                            <hr>
+                        {% else %}
+                            <p class="card-body">No documents uploaded.</p>
+                        {% endif %}
+
+                        <h3 class="card-title">Approval Information:</h3>
+                        {% if approval %}
+                            <p class="card-body"><strong class="card-title">Remarks:</strong> {{ approval.comments }}</p>
+                        {% else %}
+                            <p>This request has not been reviewed yet.</p>
+                        {% endif %}
+                        <hr>
+                        <h2 class="card-title">Actions:</h2>
+                        <div class="actions-form">
+                            <form method="POST" action="{% url 'pesostaff:accreditation_request_detail' id=request.id %}">
+                                {% csrf_token %}
+                                <textarea name="comments" placeholder="Add comments..."></textarea>
+                                <div class="card-body">
+                                    <button type="submit" class="btn btn-outline-success" name="approve" value="approve">Approve</button>
+                                    <button type="submit" class="btn btn-outline-danger" name="reject" value="reject">Reject</button>
+                                    <a class="btn btn-dark" href="{% url 'pesostaff:requests_view' %}">Back</a>
+                                </div>
+                            </form>
+                            <hr>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
+    </section>
 
-        <a href="{% url 'pesostaff:requests_view' %}">Back to Requests List</a>
-    </div>
-</body>
-</html>
+</main>
+
+{%endblock %}

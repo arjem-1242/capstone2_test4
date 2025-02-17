@@ -1,247 +1,86 @@
-{#<!DOCTYPE html>#}
-{#<html lang="en">#}
-{#<head>#}
-{#    <meta charset="UTF-8">#}
-{#    <meta name="viewport" content="width=device-width, initial-scale=1.0">#}
-{#    <title>Employer Dashboard</title>#}
-{#    <style>#}
-{#        body {#}
-{#            font-family: Arial, sans-serif;#}
-{#            margin: 0;#}
-{#            padding: 0;#}
-{#            background-color: #f4f4f4;#}
-{#        }#}
-{#        .container {#}
-{#            width: 80%;#}
-{#            margin: auto;#}
-{#            padding: 20px;#}
-{#            background-color: #fff;#}
-{#            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);#}
-{#        }#}
-{#        h1, h2 {#}
-{#            color: #333;#}
-{#        }#}
-{#        table {#}
-{#            width: 100%;#}
-{#            border-collapse: collapse;#}
-{#            margin: 20px 0;#}
-{#        }#}
-{#        th, td {#}
-{#            padding: 12px;#}
-{#            border: 1px solid #ddd;#}
-{#            text-align: left;#}
-{#        }#}
-{#        th {#}
-{#            background-color: #f4f4f4;#}
-{#        }#}
-{#        tr:nth-child(even) {#}
-{#            background-color: #f9f9f9;#}
-{#        }#}
-{#        tr:hover {#}
-{#            background-color: #f1f1f1;#}
-{#        }#}
-{#    </style>#}
-{#</head>#}
-{#<body>#}
-{#    <div class="container">#}
-{#        <h1>Employer Dashboard</h1>#}
-{##}
-{#        <section>#}
-{#            <h2>Accreditation Requests Overview</h2>#}
-{#            <table>#}
-{#                <thead>#}
-{#                    <tr>#}
-{#                        <th>Company Name</th>#}
-{#                        <th>Status</th>#}
-{#                        <th>Comments</th>#}
-{#                    </tr>#}
-{#                </thead>#}
-{#                <tbody>#}
-{#                    {% for request in accreditation_requests %}#}
-{#                        <tr>#}
-{#                            <td>{{ request.company }}</td>#}
-{#                            <td>{{ request.get_status_display }}</td>#}
-{#                            <td>{{ request.comments}}</td>#}
-{#                        </tr>#}
-{#                    {% empty %}#}
-{#                        <tr>#}
-{#                            <td colspan="3">No accreditation requests.</td>#}
-{#                        </tr>#}
-{#                    {% endfor %}#}
-{#                </tbody>#}
-{#            </table>#}
-{#        </section>#}
-{#    </div>#}
-{#</body>#}
-{#</html>#}
-{##}
-{##}
-{#<!DOCTYPE html>#}
-{#<html lang="en">#}
-{#<head>#}
-{#    <meta charset="UTF-8">#}
-{#    <meta name="viewport" content="width=device-width, initial-scale=1.0">#}
-{#    <title>Employer Dashboard</title>#}
-{#    <style>#}
-{#        body {#}
-{#            font-family: Arial, sans-serif;#}
-{#            margin: 0;#}
-{#            padding: 0;#}
-{#            background-color: #f4f4f4;#}
-{#        }#}
-{#        .container {#}
-{#            width: 80%;#}
-{#            margin: auto;#}
-{#            padding: 20px;#}
-{#            background-color: #fff;#}
-{#            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);#}
-{#        }#}
-{#        h1, h2 {#}
-{#            color: #333;#}
-{#        }#}
-{#        table {#}
-{#            width: 100%;#}
-{#            border-collapse: collapse;#}
-{#            margin: 20px 0;#}
-{#        }#}
-{#        th, td {#}
-{#            padding: 12px;#}
-{#            border: 1px solid #ddd;#}
-{#            text-align: left;#}
-{#        }#}
-{#        th {#}
-{#            background-color: #f4f4f4;#}
-{#        }#}
-{#        tr:nth-child(even) {#}
-{#            background-color: #f9f9f9;#}
-{#        }#}
-{#        tr:hover {#}
-{#            background-color: #f1f1f1;#}
-{#        }#}
-{#    </style>#}
-{#</head>#}
-{#<body>#}
-{#    <div class="container">#}
-{#        <h1>Employer Dashboard</h1>#}
-{##}
-{#        <section>#}
-{#            <h2>Accreditation Requests Overview</h2>#}
-{#            <table>#}
-{#                <thead>#}
-{#                    <tr>#}
-{#                        <th>Company Name</th>#}
-{#                        <th>Status</th>#}
-{#                        <th>Comments</th>#}
-{#                    </tr>#}
-{#                </thead>#}
-{#                <tbody>#}
-{#                    {% for request in accreditation_requests %}#}
-{#                        <tr>#}
-{#                            <td>{{ request.company }}</td>#}
-{#                            <td>{{ request.status }}</td>#}
-{#                            <td>{{ request.comments }}</td>#}
-{#                        </tr>#}
-{#                    {% empty %}#}
-{#                        <tr>#}
-{#                            <td colspan="3">No accreditation requests.</td>#}
-{#                        </tr>#}
-{#                    {% endfor %}#}
-{#                </tbody>#}
-{#            </table>#}
-{#        </section>#}
-{#    </div>#}
-{#</body>#}
-{#</html>#}
-
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Employer Dashboard</title>
+{% extends 'employer/layouts/base.html' %} {% block content %} {% load static %}
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f4;
-        }
-        .container {
-            width: 80%;
-            margin: auto;
-            padding: 20px;
-            background-color: #fff;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-        h1, h2 {
-            color: #333;
+        form{
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 30px;
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
         }
         table {
             width: 100%;
             border-collapse: collapse;
-            margin: 20px 0;
+            margin-top: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
         th, td {
-            padding: 12px;
-            border: 1px solid #ddd;
             text-align: left;
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
         }
         th {
-            background-color: #f4f4f4;
-        }
-        tr:nth-child(even) {
-            background-color: #f9f9f9;
+            background-color: #5cb874;
+            color: white;
         }
         tr:hover {
             background-color: #f1f1f1;
         }
-        .back-button {
-            display: inline-block;
-            margin-top: 20px;
-            padding: 10px 15px;
-            background-color: #333;
-            color: #fff;
-            text-decoration: none;
-            border-radius: 5px;
-        }
-        .back-button:hover {
-            background-color: #555;
-        }
     </style>
-</head>
-<body>
-    <div class="container">
-        <h1>Employer Dashboard</h1>
 
-        <section>
-            <h2>Accreditation Requests Overview</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Company Name</th>
-                        <th>Status</th>
-                        <th>Comments</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for request in accreditation_requests %}
-                        <tr>
-                            <td>{{ request.company }}</td>
-                            <td>{{ request.status }}</td>
-                            <td>{{ request.comments }}</td>
-                        </tr>
-                    {% empty %}
-                        <tr>
-                            <td colspan="3">No accreditation requests.</td>
-                        </tr>
+<main class="main" id="main">
+    <section class="about section">
+        <!-- Section Title -->
+          <div class="container section-title" data-aos="fade-up">
+            <h2>Accreditation Request Overview</h2>
+            <p>Necessitatibus eius consequatur ex aliquid fuga eum quidem sint consectetur velit</p>
+          </div><!-- End Section Title -->
+
+        <div class="container" data-aos="fade-up">
+            {% if messages %}
+                <div class="alert">
+                    {% for message in messages %}
+                        <p>{{ message }}</p>
                     {% endfor %}
-                </tbody>
-            </table>
-        </section>
+                </div>
+            {% endif %}
 
-        <!-- Back Button -->
-        <a href="{% url 'employer_dashboard' %}" class="back-button">Back to Dashboard</a>
-    </div>
-</body>
-</html>
+            {% if accreditation_requests %}
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Company Name</th>
+                            <th>Status</th>
+                            <th>Comments</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for request in accreditation_requests %}
+                            <tr>
+                                <td>{{ request.company }}</td>
+                                <td>{{ request.status }}</td>
+                                <td>{{ request.comments }}</td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="3">No accreditation requests found.</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p>No accreditation requests available.</p>
+            {% endif %}
+
+            <!-- Back Button -->
+            <hr>
+            <div>
+                <a href="{% url 'employer_dashboard' %}" class="btn btn-outline-dark">Back to Dashboard</a>
+                <a href="{% url 'employer:create_accreditation_request' %}" class="btn btn-outline-success">Get Accredited</a>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+{% endblock %}

@@ -1,0 +1,81 @@
+{% extends 'pesostaff/layouts/base.html' %} {% block content %} {% load static %}
+
+<main class="main" id="main">
+
+        <div class="pagetitle">
+          <h1>Job Seeker List</h1>
+            <nav>
+            <ol class="breadcrumb">
+              <li class="breadcrumb-item active">Here you can manage accreditation requests, view job postings, and handle other administrative tasks.</li>
+            </ol>
+            </nav>
+        </div><!-- End Page Title -->
+
+        <div class="section dashboard">
+            <div class="row">
+
+                <div class="col-12">
+                    <div class="card">
+                        <table class="table datatable">
+                            <thead>
+                                <tr>
+
+                                    <th>Full Name</th>
+                                    <th>Email</th>
+                                    <th>Phone</th>
+                                    <th>Location</th>
+                                    <th>Skills</th>
+                                    <th>Educational Attainments</th>
+                                    <th>Work Experience</th>
+                                </tr>
+                            </thead>
+                                {% for item in jobseekers %}
+                                {% with educ_count=item.educ_count emp_count=item.emp_count max_rows=item.max_rows educations=item.educations employments=item.employments %}
+
+                                {% for i in ""|rjust:max_rows %}
+                                <tr>
+                                {% if forloop.first %}
+                                    <td rowspan="{{ max_rows }}">
+                                        {{ item.jobseeker.user.first_name }}
+                                        {{ item.jobseeker.user.middle_name|default:"" }}
+                                        {{ item.jobseeker.user.last_name }}
+                                    </td>
+                                    <td rowspan="{{ max_rows }}">{{ item.jobseeker.user.email }}</td>
+                                    <td rowspan="{{ max_rows }}">{{ item.phone }}</td>
+                                    <td rowspan="{{ max_rows }}">{{ item.jobseeker.resume.location }}</td>
+                                    <td rowspan="{{ max_rows }}">{{ item.jobseeker.resume.skills }}</td>
+                                {% endif %}
+
+                                <td>
+                                    {% if forloop.counter0 < educ_count %}
+                                        {{ educations|slice:forloop.counter|last}}
+                                    {% else %}
+                                        No education entry
+                                    {% endif %}
+                                </td>
+
+
+                                <td>
+                                    {% if forloop.counter0 < emp_count %}
+                                        {{ employments|slice:forloop.counter|last }}
+                                    {% else %}
+                                        No employment entry
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+
+                        {% endwith %}
+                    {% endfor %}
+
+
+                    </table>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+</main>
+
+{% endblock %}

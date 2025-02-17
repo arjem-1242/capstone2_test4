@@ -4,6 +4,7 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.files.storage import FileSystemStorage, default_storage
 from core.models import CustomUser
+from employer.models import *
 
 # Define custom file storage for documents
 resume_document_storage = FileSystemStorage(location='media/resume_documents/')
@@ -65,10 +66,6 @@ class ResumeDocument(models.Model):
     skills = models.TextField(blank=True, null=True, default='')
     location = models.CharField(max_length=256, blank=True, null=True, default='')
 
-    # # Related models
-    # educ = models.ForeignKey(Education, on_delete=models.SET_NULL, blank=True, null=True, related_name="resume_documents")
-    # work = models.ForeignKey(Employment, on_delete=models.SET_NULL, blank=True, null=True, related_name="resume_documents")
-
     # Resume storage
     resume = models.FileField(upload_to="resume_document_storage", blank=True, null=True)
 
@@ -95,26 +92,34 @@ class ResumeDocument(models.Model):
 class JobseekerProfile(models.Model):
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, default='')
 
+    location = models.CharField(max_length=256, blank=True, null=True, default='')
+    contact = models.CharField(max_length=256, blank=True, null=True, default='')
+    phone = models.CharField(max_length=256, blank=True, null=True, default='')
+
     resume = models.OneToOneField(ResumeDocument, on_delete=models.CASCADE, default='')
 
     def __str__(self):
         return self.user.first_name + self.user.last_name
 
-#
-# class SavedJobs(models.Model):
-#     job_posting = models.ForeignKey('JobPosting', on_delete=models.CASCADE, related_name='saved_jobs')
-#     employer = models.ForeignKey('Employer', on_delete=models.CASCADE, related_name='saved_jobs')
-#     date_saved = models.DateField(auto_now_add=True)
-#
-#     def __str__(self):
-#         return f"{self.applicant.user.username} saved for {self.job_posting.title}"
-#
-#
-# class MatchedCandidate(models.Model):
-#     job_posting = models.ForeignKey('JobPosting', on_delete=models.CASCADE, related_name='matched_candidates')
-#     applicant = models.ForeignKey('Applicant', on_delete=models.CASCADE, related_name='matched_candidates')
-#     match_score = models.FloatField()  # Score indicating the degree of match based on OCR & NLP
-#     matched_date = models.DateField(auto_now_add=True)
-#
-#     def __str__(self):
-#         return f"{self.applicant.user.username} matched with {self.job_posting.title} (Score: {self.match_score})"
+class MatchedJobs(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, default='')
+    resume = models.ForeignKey(ResumeDocument, on_delete=models.CASCADE)
+    job_posting = models.ForeignKey("employer.JobPosting", on_delete=models.CASCADE)
+    matched_on = models.DateTimeField(default=timezone.now)
+
+    # Fields for matched attributes
+    matched_skills = models.TextField(blank=True, null=True)  # Stores matched skills as a comma-separated string
+    matched_location = models.CharField(max_length=255, blank=True, null=True)  # Stores matched location as a string
+    matched_position = models.CharField(max_length=255, blank=True, null=True)  # Stores the matched job position
+    matched_education = models.TextField(blank=True, null=True)  # Stores matched education programs as a comma-separated string
+
+    def __str__(self):
+        return f"{self.user} matched with {self.job_posting.position}"
+
+    def get_matched_skills(self):
+        """Return matched skills as a list."""
+        return self.matched_skills.split(',') if self.matched_skills else []
+
+    def get_matched_education(self):
+        """Return matched education programs as a list."""
+        return self.matched_education.split(',') if self.matched_education else []

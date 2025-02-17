@@ -1,0 +1,438 @@
+{% extends 'pesostaff/layouts/base.html' %} {% block content %} {% load static %}
+
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@3.10.2/dist/fullcalendar.min.css" rel="stylesheet" />
+
+    <style>
+        /* Modal Background */
+        .modal {
+            display: none; /* Hide modal by default */
+            position: fixed;
+            z-index: 1000;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Modal Content */
+        .modal-content {
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            width: 400px;
+            max-width: 90%;
+            position: relative;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        /* Close Button - Positioned Correctly */
+        .close-modal {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 22px;
+            cursor: pointer;
+            color: #666;
+        }
+
+        /* Input Fields */
+        .modal-content input,
+        .modal-content textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+        }
+
+        /* Buttons */
+        .modal-content button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+
+        .modal-content .cancel-btn {
+            background: #ccc;
+            color: black;
+        }
+
+        .modal-content .save-btn {
+            background: #007bff;
+            color: white;
+        }
+
+        /* Animation */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+    </style>
+
+
+<main class="main" id="main">
+
+    <div class="pagetitle">
+      <h1>Event Calendar</h1>
+        <nav>
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item active">Here, you can manage your events.</li>
+        </ol>
+        </nav>
+    </div><!-- End Page Title -->
+
+    <div class="col-12">
+
+        <div class="card">
+            <div class="card-body">
+                <br>
+            <div id="calendar"></div>
+                <br>
+            <button class="btn btn-outline-success" id="addEventBtn">Add Event</button>
+        </div>
+
+        <!-- View Event Modal -->
+        <div id="eventModal" class="modal form-control">
+            <div class="modal-content">
+                <h1>Event</h1>
+                <hr>
+                <!-- Error message container for update -->
+                <div id="updateEventErrorMsg" class="error-message"></div>
+                <form class="form-control" id="viewEventForm">
+                    <input class="form-control" type="text" id="eventTitle" placeholder="Event Title" disabled>
+                    <input class="form-control" type="text" id="eventLocation" placeholder="Event Location" disabled>
+                    <textarea class="form-control" id="eventDescription" placeholder="Event Description" disabled></textarea>
+                    <input class="form-control" type="datetime-local" data-field="start_date" id="eventStartTime" disabled>
+                    <input class="form-control" type="datetime-local" data-field="end_date" id="eventEndTime" disabled>
+                    <button type="button" class="btn btn-outline-danger" id="deleteEventBtn">Delete Event</button>
+                    <button type="button" class="btn btn-outline-dark" id="editEventBtn">Edit Event</button>
+                    <button type="button" class="btn btn-outline-dark" onclick="closeModal()">Cancel</button>
+                    <button type="button" class="btn btn-outline-success" id="updateEventBtn" style="display:none;">Save Changes</button>
+
+                </form>
+            </div>
+        </div>
+
+        <!-- Add Event Modal -->
+        <div id="addEventModal" class="modal">
+            <div class="modal-content">
+                <h1>Add Event</h1>
+                <hr>
+                <!-- Error message container for add -->
+                <div id="addEventErrorMsg" class="error-message"></div>
+                <form id="eventForm">
+                    {% csrf_token %}
+                    <input type="text" id="eventTitleInput" placeholder="Event Title" required>
+                    <input type="text" id="eventLocationInput" placeholder="Location" required>
+                    <input type="datetime-local" id="eventStartTimeInput" required>
+                    <input type="datetime-local" id="eventEndTimeInput" required>
+                    <textarea id="eventDescriptionInput" placeholder="Description" required></textarea>
+                    <button type="button" class="btn btn-outline-dark" onclick="closeAddEventModal()">Cancel</button>
+                    <button type="button" class="btn btn-outline-success" id="saveNewEventBtn">Save Event</button>
+                </form>
+            </div>
+        </div>
+
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                const modal = document.getElementById("addEventModal");
+                const openBtn = document.getElementById("addEventBtn");
+                const closeBtn = document.querySelector("#addEventModal .close-modal");
+
+                // Ensure modal is hidden on page load (fixes auto-popup issue)
+                if (modal) {
+                    modal.style.display = "none";
+                }
+
+                // Open modal when clicking "Add Event" button
+                openBtn.addEventListener("click", function () {
+                    if (modal) {
+                        modal.style.display = "flex";
+                    }
+                });
+
+                // Close modal when clicking the close button
+                closeBtn.addEventListener("click", function () {
+                    if (modal) {
+                        modal.style.display = "none";
+                    }
+                });
+
+                // Close modal when clicking outside of it
+                window.addEventListener("click", function (event) {
+                    if (event.target === modal) {
+                        modal.style.display = "none";
+                    }
+                });
+            });
+            document.addEventListener("DOMContentLoaded", function () {
+                const modal = document.getElementById("deleteEventBtn");
+                const openBtn = document.getElementById("deleteEventBtn");
+                const closeBtn = document.querySelector("#deleteEventBtn .close-modal");
+
+                // Ensure modal is hidden on page load (fixes auto-popup issue)
+                if (modal) {
+                    modal.style.display = "none";
+                }
+
+                // Open modal when clicking "Add Event" button
+                openBtn.addEventListener("click", function () {
+                    if (modal) {
+                        modal.style.display = "flex";
+                    }
+                });
+
+                // Close modal when clicking the close button
+                closeBtn.addEventListener("click", function () {
+                    if (modal) {
+                        modal.style.display = "none";
+                    }
+                });
+
+                // Close modal when clicking outside of it
+                window.addEventListener("click", function (event) {
+                    if (event.target === modal) {
+                        modal.style.display = "none";
+                    }
+                });
+            });
+            document.addEventListener("DOMContentLoaded", function () {
+                const modal = document.getElementById("editEventBtn");
+                const openBtn = document.getElementById("editEventBtn");
+                const closeBtn = document.querySelector("#editEventBtn .close-modal");
+
+                // Ensure modal is hidden on page load (fixes auto-popup issue)
+                if (modal) {
+                    modal.style.display = "none";
+                }
+
+                // Open modal when clicking "Add Event" button
+                openBtn.addEventListener("click", function () {
+                    if (modal) {
+                        modal.style.display = "flex";
+                    }
+                });
+
+                // Close modal when clicking the close button
+                closeBtn.addEventListener("click", function () {
+                    if (modal) {
+                        modal.style.display = "none";
+                    }
+                });
+
+                // Close modal when clicking outside of it
+                window.addEventListener("click", function (event) {
+                    if (event.target === modal) {
+                        modal.style.display = "none";
+                    }
+                });
+            });
+        </script>
+
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/moment@2.29.1/moment.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/fullcalendar@3.10.2/dist/fullcalendar.min.js"></script>
+        <script type="text/javascript">
+            {% if event_id %}
+                var updateEventUrl = "{% url 'pesostaff:update_event' event_id=event_id %}";
+            {% else %}
+                var updateEventUrl = null;  // Or set it as an empty string
+            {% endif %}
+
+            $(document).ready(function() {
+                $('#calendar').fullCalendar({
+                    header: {
+                        left: 'prev,next today',
+                        center: 'title',
+                        right: 'month,agendaWeek,agendaDay'
+                    },
+                    events: function(start, end, timezone, callback) {
+                        $.ajax({
+                            url: "{% url 'pesostaff:event_list' %}",
+                            method: 'GET',
+                            success: function(data) {
+                                callback(data);
+                            },
+                            error: function(xhr, status, error) {
+                                console.error("Error loading events: ", error);
+                            }
+                        });
+                    },
+                    eventClick: function(event) {
+                        $('#eventTitle').val(event.title);
+                        $('#eventLocation').val(event.location);
+                        $('#eventDescription').val(event.description);
+                        $('#eventStartTime').val(event.start.format('YYYY-MM-DDTHH:mm'));
+                        $('#eventEndTime').val(event.end.format('YYYY-MM-DDTHH:mm'));
+
+                        // Store the event object in a global variable
+                        window.currentEvent = event;
+
+                        // Hide any previous error messages and disable fields by default
+                        $('#updateEventErrorMsg').hide();
+                        $('#eventTitle, #eventLocation, #eventDescription, #eventStartTime, #eventEndTime').prop('disabled', true);
+                        $('#editEventBtn').show();
+                        $('#updateEventBtn').hide();
+
+                        $('#eventModal').fadeIn();
+                    }
+                });
+
+                $('#addEventBtn').click(function() {
+                    $('#eventTitleInput, #eventLocationInput, #eventStartTimeInput, #eventEndTimeInput, #eventDescriptionInput').val('');
+                    $('#addEventErrorMsg').hide();
+                    $('#addEventModal').onClick();
+                });
+
+                $('#editEventBtn').click(function() {
+                    // Enable the fields for editing
+                    $('#eventTitle, #eventLocation, #eventDescription, #eventStartTime, #eventEndTime').prop('disabled', false);
+                    $(this).hide();
+                    $('#updateEventBtn').show();
+                });
+
+                $('#updateEventBtn').click(function() {
+                    // Clear previous error messages (if any)
+                    $('#updateEventErrorMsg').hide().text('');
+
+                    // Validate fields
+                    if (!$('#eventTitle').val().trim() ||
+                        !$('#eventLocation').val().trim() ||
+                        !$('#eventStartTime').val() ||
+                        !$('#eventEndTime').val() ||
+                        !$('#eventDescription').val().trim()) {
+
+                        $('#updateEventErrorMsg').text('All fields are required.').show();
+                        return;  // Do not proceed if validation fails
+                    }
+
+                    const updatedEventData = {
+                        id: window.currentEvent.id,
+                        title: $('#eventTitle').val().trim(),
+                        location: $('#eventLocation').val().trim(),
+                        start_date: $('#eventStartTime').val(),
+                        end_date: $('#eventEndTime').val(),
+                        description: $('#eventDescription').val().trim(),
+                        csrfmiddlewaretoken: '{{ csrf_token }}'
+                    };
+
+                    // Construct the correct URL dynamically using the event's ID
+                    var urlWithId = "{% url 'pesostaff:update_event' event_id='1' %}".replace('1', window.currentEvent.id);
+
+                    $.ajax({
+                        url: urlWithId,
+                        method: 'POST',
+                        data: updatedEventData,
+                        success: function(response) {
+                            // Update the local event object with new data
+                            window.currentEvent.title = updatedEventData.title;
+                            window.currentEvent.location = updatedEventData.location;
+                            window.currentEvent.description = updatedEventData.description;
+                            // Specify the expected format when parsing
+                            window.currentEvent.start = moment(updatedEventData.start_date, "YYYY-MM-DDTHH:mm");
+                            window.currentEvent.end = moment(updatedEventData.end_date, "YYYY-MM-DDTHH:mm");
+
+                            // Update the event on the calendar
+                            $('#calendar').fullCalendar('updateEvent', window.currentEvent);
+
+                            // Hide the modal after updating
+                            $('#eventModal').fadeOut();
+                        },
+                        error: function(xhr) {
+                            alert("Error updating event: " + xhr.responseText);
+                        }
+                    });
+                });
+
+                $('#deleteEventBtn').click(function() {
+                    $.ajax({
+                        url: "{% url 'pesostaff:delete_event' %}",
+                        method: 'POST',
+                        data: {
+                            event_id: window.currentEvent.id,
+                            csrfmiddlewaretoken: '{{ csrf_token }}'
+                        },
+                        success: function(response) {
+                            $('#calendar').fullCalendar('removeEvents', window.currentEvent.id);
+                            $('#eventModal').fadeOut();
+                        },
+                        error: function(xhr) {
+                            alert("Error deleting event: " + xhr.responseText);
+                        }
+                    });
+                });
+
+                $('#saveNewEventBtn').click(function() {
+                    // Clear previous error message
+                    $('#addEventErrorMsg').hide().text('');
+
+                    // Validate fields
+                    if (!$('#eventTitleInput').val().trim() ||
+                        !$('#eventLocationInput').val().trim() ||
+                        !$('#eventStartTimeInput').val() ||
+                        !$('#eventEndTimeInput').val() ||
+                        !$('#eventDescriptionInput').val().trim()) {
+
+                        $('#addEventErrorMsg').text('All fields are required.').show();
+                        return;  // Do not proceed if validation fails
+                    }
+
+                    const formData = {
+                        title: $('#eventTitleInput').val().trim(),
+                        location: $('#eventLocationInput').val().trim(),
+                        start_date: $('#eventStartTimeInput').val(),
+                        end_date: $('#eventEndTimeInput').val(),
+                        description: $('#eventDescriptionInput').val().trim(),
+                        csrfmiddlewaretoken: '{{ csrf_token }}'
+                    };
+
+                    $.ajax({
+                        url: "{% url 'pesostaff:add_event' %}",
+                        method: 'POST',
+                        data: formData,
+                        success: function(response) {
+                            $('#calendar').fullCalendar('renderEvent', {
+                                title: response.title,
+                                start: response.start,
+                                end: response.end,
+                                description: response.description,
+                                location: response.location,
+                                id: response.id
+                            });
+                            $('#addEventModal').fadeOut();
+                        },
+                        error: function(xhr) {
+                            alert("Error saving event: " + xhr.responseText);
+                        }
+                    });
+                });
+
+                window.closeModal = function() {
+                    $('#eventModal').fadeOut();
+                };
+
+                window.closeAddEventModal = function() {
+                    $('#addEventModal').fadeOut();
+                };
+            });
+        </script>
+
+        </div>
+
+    </div>
+</main>
+
+
+{% endblock %}

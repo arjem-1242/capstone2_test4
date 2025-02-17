@@ -39,8 +39,8 @@ class CompanyProfileAdmin(admin.ModelAdmin):
 @admin.register(JobPosting)
 class JobPostingAdmin(admin.ModelAdmin):
     form = JobPostingForm
-    list_display = ('title', 'date_posted', 'salary')
-    search_fields = ('title', 'description')
+    list_display = ('position', 'date_posted', 'salary')
+    search_fields = ('position', 'skills', 'location')
     list_filter = ('date_posted',)
     ordering = ('-date_posted',)
 
@@ -79,7 +79,7 @@ class SavedCandidateAdmin(admin.ModelAdmin):
 @admin.register(MatchedCandidate)
 class MatchedCandidateAdmin(admin.ModelAdmin):
     list_display = ('applicant', 'job_posting', 'match_score', 'matched_date')
-    search_fields = ('applicant__user__username', 'job_posting__title')
+    search_fields = ('applicant__user__username', 'job_posting__position')
     list_filter = ('matched_date',)
     ordering = ('-matched_date',)
     raw_id_fields = ('applicant', 'job_posting')

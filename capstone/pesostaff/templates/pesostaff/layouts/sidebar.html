@@ -4,7 +4,7 @@
     <ul class="sidebar-nav" id="sidebar-nav">
 
       <li class="nav-item">
-        <a class="nav-link " href="{% url 'dashboard' %}">
+        <a class="nav-link " href="{% url 'pesostaff:staff_dashboard' %}">
           <i class="bi bi-grid"></i>
           <span>Dashboard</span>
         </a>
@@ -128,15 +128,21 @@
         </a>
         <ul id="charts-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
           <li>
-            <a href="{% url 'analytics' %}">
-              <i class="bi bi-circle"></i><span>Business Analytics</span>
+            <a href="{% url 'pesostaff:job_vacancy_clustering_report' %}">
+              <i class="bi bi-circle"></i><span>Job Vacancies</span>
             </a>
           </li>
           <li>
-            <a href="{% url 'job_analytics' %}">
-              <i class="bi bi-circle"></i><span>Job Matching</span>
+              <a href="{% url 'pesostaff:job_location_report' %}">
+                  <i class="bi bi-circle"></i><span>Job Locations</span>
+              </a>
+          </li>
+          <li>
+            <a href="{% url 'pesostaff:jobseeker_location_report' %}">
+              <i class="bi bi-circle"></i><span>Job Seeker Locations</span>
             </a>
           </li>
+
         </ul>
       </li>
       
@@ -153,23 +159,18 @@
             </a>
           </li> -->
           <li>
-            <a href="{% url 'companies' %}">
+            <a href="{% url 'pesostaff:requests_view' %}">
               <i class="bi bi-circle"></i><span>Companies</span>
             </a>
           </li>
           <li>
-            <a href="{% url 'accredited_companies' %}">
-              <i class="bi bi-circle"></i><span>Accredited Companies</span>
+            <a href="{% url 'pesostaff:view_job_postings' %}">
+              <i class="bi bi-circle"></i><span>Job Postings</span>
             </a>
           </li>
           <li>
-            <a href="{% url 'jobs' %}">
-              <i class="bi bi-circle"></i><span>Job Listings</span>
-            </a>
-          </li>
-          <li>
-            <a href="{% url 'employees' %}">
-              <i class="bi bi-circle"></i><span>Employees</span>
+            <a href="{% url 'pesostaff:jobseeker_list' %}">
+              <i class="bi bi-circle"></i><span>Job Seekers</span>
             </a>
           </li>
         </ul>
@@ -207,14 +208,14 @@
       <!-- End Pages Nav -->
 
       <li class="nav-item">
-        <a class="nav-link collapsed" href="{% url 'seminars' %}">
-          <i class="bi bi-card-list"></i>
-          <span>Seminars</span>
+        <a class="nav-link collapsed" href="{% url 'pesostaff:manage_events' %}">
+          <i class="bi bi-calendar2"></i>
+          <span>Calendar</span>
         </a>
       </li>
 
       <li class="nav-item">
-        <a class="nav-link collapsed" href="{% url 'profile' %}">
+        <a class="nav-link collapsed" href="">
           <i class="bi bi-person"></i>
           <span>Profile</span>
         </a>
@@ -228,14 +229,14 @@
       </li> -->
 
       <li class="nav-item">
-        <a class="nav-link collapsed" href="{% url 'job_trends' %}">
+        <a class="nav-link collapsed" href="">
           <i class="bi bi-box-arrow-in-right"></i>
           <span>Job Trends</span>
         </a>
       </li>
 
       <li class="nav-item">
-        <a class="nav-link collapsed" href="{% url 'tools' %}">
+        <a class="nav-link collapsed" href="">
           <i class="bi bi-file-earmark"></i>
           <span>Tools</span>
         </a>
@@ -249,7 +250,7 @@
       </li> -->
 
       <li class="nav-item">
-        <a class="nav-link collapsed" href="{% url 'faqs' %}">
+        <a class="nav-link collapsed" href="">
           <i class="bi bi-question-circle"></i>
           <span>F.A.Q</span>
         </a>

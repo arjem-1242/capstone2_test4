@@ -1,88 +1,317 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PESO Staff Dashboard</title>
+{% extends 'pesostaff/layouts/base.html' %} {% block content %}
+
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f4;
+        #plot {
+            margin: 5px 0;
         }
-        .container {
-            width: 80%;
-            margin: 0 auto;
-            padding: 20px;
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
-        header {
+        th, td {
+            text-align: left;
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
             background-color: #4CAF50;
             color: white;
-            padding: 15px 0;
-            text-align: center;
         }
-        nav ul {
-            list-style: none;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-        }
-        nav ul li {
-            margin: 0 15px;
-        }
-        nav ul li a {
-            color: white;
-            text-decoration: none;
-            font-weight: bold;
-        }
-        .content {
-            background-color: white;
-            padding: 20px;
-            margin-top: 20px;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-        .card {
-            background-color: #e7e7e7;
-            padding: 15px;
-            margin-bottom: 15px;
-            border-radius: 5px;
-        }
-        .card h3 {
-            margin-top: 0;
+        tr:hover {
+            background-color: #f1f1f1;
         }
     </style>
-</head>
-<body>
-    <div class="container">
-        <header>
-            <h1>PESO Staff Dashboard</h1>
-            <nav>
-                <ul>
-                    <li><a href="{% url 'pesostaff:staff_dashboard' %}">Home</a></li>
-                    <li><a href="{% url 'pesostaff:requests_view' %}">Accreditation Requests</a></li>
-                    <li><a href="{% url 'pesostaff:view_job_postings' %}">View Job Postings</a></li>
-                </ul>
-            </nav>
-        </header>
 
-        <div class="content">
-            <h2>Welcome, PESO Staff Member</h2>
-            <p>Here you can manage accreditation requests, view job postings, and handle other administrative tasks.</p>
+<main class="main" id="main">
 
+    <div class="pagetitle">
+      <h1>Dashboard</h1>
+        <nav>
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item active">Here you can manage accreditation requests, view job postings, and handle other administrative tasks.</li>
+        </ol>
+        </nav>
+    </div><!-- End Page Title -->
+
+    <section class="section dashboard">
+      <div class="row">
+
+        <!-- Left side columns -->
+        <div class="col-lg-8">
+          <div class="row">
+
+            <!-- Sales Card -->
+            <div class="col-xxl-4 col-md-6">
+              <div class="card info-card sales-card">
+
+                <div class="card-body">
+                  <h5 class="card-title">Companies</h5>
+
+                  <div class="d-flex align-items-center">
+                    <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                      <i class="ri-building-line"></i>
+                    </div>
+                    <div class="ps-3">
+                      <h6><h6><a href="{% url 'pesostaff:requests_view' %}">{{ all_accreditation_request }} <span>Requests</span></a></h6></h6>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div><!-- End Sales Card -->
+
+            <!-- Revenue Card -->
+            <div class="col-xxl-4 col-md-6">
+              <div class="card info-card revenue-card">
+
+                <div class="card-body">
+                  <h5 class="card-title">Job Postings</h5>
+
+                  <div class="d-flex align-items-center">
+                    <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                      <i class="ri-briefcase-4-line"></i>
+                    </div>
+                    <div class="ps-3">
+                      <h6><a href="{% url 'pesostaff:view_job_postings' %}">{{ all_job_postings_count }} Job Postings</a></h6>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div><!-- End Revenue Card -->
+
+            <!-- Customers Card -->
+            <div class="col-xxl-4 col-xl-12">
+
+              <div class="card info-card customers-card">
+
+                <div class="card-body">
+                  <h5 class="card-title">Job Seekers</h5>
+
+                  <div class="d-flex align-items-center">
+                    <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                      <i class="bi bi-people"></i>
+                    </div>
+                    <div class="ps-3">
+                      <h6><a href="{% url 'pesostaff:jobseeker_list' %}">{{ all_job_seeker_count }} Job Seekers</a></h6>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+
+            </div><!-- End Customers Card -->
+
+
+            <!-- Job Vacancies Reports -->
+            <div class="col-12">
+              <div class="card">
+
+                <div class="card-body">
+                  <h5 class="card-title">Job Vacancies</h5>
+
+                  <!-- Line Chart -->
+                  <div id="reportsChart"></div>
+
+                    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+                    <div id="plot"></div>
+                    <script>
+                        var graphData = {{ graph_json|safe }};
+                        Plotly.newPlot('plot', graphData.data, graphData.layout, { responsive: true });
+                    </script>
+                    <hr>
+
+                    <table class="table datatable">
+                        <thead>
+                            <tr>
+                                <th>Position</th>
+                                <th>Date Posted</th>
+                                <th>No. of Vacancies</th>
+                                <th>Cluster</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in clustered_data %}
+                            <tr>
+                                <td>{{ row.position }}</td>
+                                <td>{{ row.date_posted }}</td>
+                                <td>{{ row.no_of_vacancies }}</td>
+                                <td>{{ row.Cluster }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+              </div>
+            </div><!-- End Reports -->
+
+          </div>
+        </div><!-- End Left side columns -->
+
+        <!-- Right side columns -->
+        <div class="col-lg-4">
+
+          <!-- Recent Activity -->
             <div class="card">
-              <h3>Pending Accreditation Requests</h3>
-              <p>Total Requests: {{ pending_requests_count }}</p>
-              <a href="{% url 'pesostaff:requests_view' %}">View Requests</a>
+            <div class="filter">
+              <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
+              <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+                <li class="dropdown-header text-start">
+                  <h6>Filter</h6>
+                </li>
+
+                <li><a class="dropdown-item" href="#">Today</a></li>
+                <li><a class="dropdown-item" href="#">This Month</a></li>
+                <li><a class="dropdown-item" href="#">This Year</a></li>
+              </ul>
             </div>
 
-            <div class="card">
-               <h3>Recent Job Postings</h3>
-                <p>Total Job Postings: {{ all_job_postings_count }}</p>
-               <a href="{% url 'pesostaff:view_job_postings' %}">View Job Postings</a>
+            <div class="card-body">
+                  <h5 class="card-title">Job Locations</h5>
+                    <div class="activity-item">
+                            <table class="table datatable">
+                        <thead>
+                            <tr>
+                                <th>Location</th>
+                                <th>Number of Job Postings</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for entry in location_data %}
+                            <tr>
+                                <td>{{ entry.location }}</td>
+                                <td>{{ entry.count }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    <br>
+
+                    <canvas id="jobLocationChart"></canvas>
+
+                    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+                    <script>
+                        var ctx = document.getElementById('jobLocationChart').getContext('2d');
+                        var jobLocationChart = new Chart(ctx, {
+                            type: 'bar',
+                            data: {
+                                labels: [{% for entry in location_data %}"{{ entry.location }}",{% endfor %}],
+                                datasets: [{
+                                    label: 'Number of Job Postings',
+                                    data: [{% for entry in location_data %}{{ entry.count }},{% endfor %}],
+                                    backgroundColor: [
+                                        'rgba(255, 99, 132, 0.6)',
+                                        'rgba(54, 162, 235, 0.6)',
+                                        'rgba(255, 206, 86, 0.6)',
+                                        'rgba(75, 192, 192, 0.6)',
+                                        'rgba(153, 102, 255, 0.6)',
+                                        'rgba(255, 159, 64, 0.6)'
+                                    ],
+                                    borderColor: 'rgba(0, 0, 0, 0.1)',
+                                    borderWidth: 1
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                plugins: {
+                                    legend: {
+                                        display: false
+                                    }
+                                },
+                                scales: {
+                                    y: {
+                                        beginAtZero: true,
+                                        ticks: {
+                                            stepSize: 1
+                                        }
+                                    }
+                                }
+                            }
+                        });
+                    </script>
+                  </div>
+                </div>
+            </div> <!-- End Jo Locations Report -->
+
+            <!-- Job Seeker Locations Report -->
+
+          <div class="card">
+
+            <div class="card-body pb-0">
+                  <h5 class="card-title">Job Seeker Locations
+                  </h5>
+
+                <table class="table datatable">
+                        <thead>
+                            <tr>
+                                <th>Location</th>
+                                <th>Number of Job Seekers</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for entry in location_job_data %}
+                            <tr>
+                                <td>{{ entry.location }}</td>
+                                <td>{{ entry.count }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    <br>
+
+                    <canvas id="jobSeekerLocationChart"></canvas>
+
+
+                    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+                    <script>
+                        var ctx = document.getElementById('jobSeekerLocationChart').getContext('2d');
+                        var jobSeekerLocationChart = new Chart(ctx, {
+                            type: 'bar',
+                            data: {
+                                labels: [{% for entry in location_job_data %}"{{ entry.location }}",{% endfor %}],
+                                datasets: [{
+                                    label: 'Number of Job Seekers',
+                                    data: [{% for entry in location_job_data %}{{ entry.count }},{% endfor %}],
+                                    backgroundColor: [
+                                        'rgba(255, 99, 132, 0.6)',
+                                        'rgba(54, 162, 235, 0.6)',
+                                        'rgba(255, 206, 86, 0.6)',
+                                        'rgba(75, 192, 192, 0.6)',
+                                        'rgba(153, 102, 255, 0.6)',
+                                        'rgba(255, 159, 64, 0.6)'
+                                    ],
+                                    borderColor: 'rgba(0, 0, 0, 0.1)',
+                                    borderWidth: 1
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                plugins: {
+                                    legend: {
+                                        display: false
+                                    }
+                                },
+                                scales: {
+                                    y: {
+                                        beginAtZero: true,
+                                        ticks: {
+                                            stepSize: 1
+                                        }
+                                    }
+                                }
+                            }
+                        });
+                    </script>
+                </div>
             </div>
-        </div>
-    </div>
-</body>
-</html>
+        </div> <!-- End Job Location Report -->
+      </div>
+    </section>
+
+</main>
+
+{% endblock %}
