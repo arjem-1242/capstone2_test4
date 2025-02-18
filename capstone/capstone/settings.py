@@ -131,7 +131,12 @@ STATIC_URL = 'static/'
 
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'core/static'),
+    os.path.join(BASE_DIR, 'employer/static'),
+    os.path.join(BASE_DIR, 'jobseeker/static'),
+    os.path.join(BASE_DIR, 'pesostaff/static'),
 ]
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # Directory where static files will be collected
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
